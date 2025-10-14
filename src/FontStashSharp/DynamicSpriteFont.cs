@@ -19,6 +19,7 @@ namespace FontStashSharp
 		private class GlyphStorage
 		{
 			public Int32Map<DynamicFontGlyph> Glyphs = new Int32Map<DynamicFontGlyph>();
+			public Int32Map<DynamicFontGlyph> ShapedGlyphs = new Int32Map<DynamicFontGlyph>(); // For HarfBuzz glyph IDs
 			public FontSystemEffect Effect;
 			public int EffectAmount;
 		}
@@ -43,9 +44,14 @@ namespace FontStashSharp
 
 		internal Int32Map<DynamicFontGlyph> GetGlyphs(FontSystemEffect effect, int effectAmount)
 		{
+			return GetGlyphStorage(effect, effectAmount).Glyphs;
+		}
+
+		private GlyphStorage GetGlyphStorage(FontSystemEffect effect, int effectAmount)
+		{
 			if (_lastStorage != null && _lastStorage.Effect == effect && _lastStorage.EffectAmount == effectAmount)
 			{
-				return _lastStorage.Glyphs;
+				return _lastStorage;
 			}
 
 			var key = (int)effect << 16 | effectAmount;
@@ -64,7 +70,7 @@ namespace FontStashSharp
 
 			_lastStorage = result;
 
-			return result.Glyphs;
+			return result;
 		}
 
 		private DynamicFontGlyph GetGlyphWithoutBitmap(int codepoint, FontSystemEffect effect, int effectAmount)
@@ -137,7 +143,7 @@ namespace FontStashSharp
 
 			FontSystem.RenderGlyphOnAtlas(device, glyph);
 
-			return glyph;
+			return glyph; 
 		}
 
 #if MONOGAME || FNA || STRIDE
@@ -153,6 +159,68 @@ namespace FontStashSharp
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Get a glyph by its glyph ID (for HarfBuzz shaped text)
+		/// </summary>
+#if MONOGAME || FNA || STRIDE
+		internal DynamicFontGlyph GetGlyphByGlyphId(GraphicsDevice device, int glyphId, int fontSourceIndex, FontSystemEffect effect, int effectAmount)
+#else
+		internal DynamicFontGlyph GetGlyphByGlyphId(ITexture2DManager device, int glyphId, int fontSourceIndex, FontSystemEffect effect, int effectAmount)
+#endif
+		{
+			if (effect == FontSystemEffect.None)
+			{
+			}
+			else if (effectAmount == 0)
+			{
+				effect = FontSystemEffect.None;
+			}
+
+			var storage = GetGlyphStorage(effect, effectAmount);
+
+			// Create a key that combines glyph ID and font source index
+			var key = (fontSourceIndex << 24) | glyphId;
+
+			DynamicFontGlyph glyph;
+			if (storage.ShapedGlyphs.TryGetValue(key, out glyph))
+			{
+				return glyph;
+			}
+
+			// Get glyph metrics from font source
+			var fontSize = FontSize * FontSystem.FontResolutionFactor;
+			var font = FontSystem.FontSources[fontSourceIndex];
+
+			int advance, x0, y0, x1, y1;
+			font.GetGlyphMetrics(glyphId, fontSize, out advance, out x0, out y0, out x1, out y1);
+
+			var gw = x1 - x0 + effectAmount * 2;
+			var gh = y1 - y0 + effectAmount * 2;
+
+			glyph = new DynamicFontGlyph
+			{
+				Codepoint = 0, // Not applicable for shaped glyphs
+				Id = glyphId,
+				FontSize = fontSize,
+				FontSourceIndex = fontSourceIndex,
+				RenderOffset = new Point(x0, y0),
+				Size = new Point(gw, gh),
+				XAdvance = advance,
+				Effect = effect,
+				EffectAmount = effectAmount
+			};
+
+			storage.ShapedGlyphs[key] = glyph;
+
+			// Render to atlas if device is available
+			if (device != null && glyph.Texture == null)
+			{
+				FontSystem.RenderGlyphOnAtlas(device, glyph);
+			}
+
+			return glyph;
 		}
 
 #if MONOGAME || FNA || STRIDE

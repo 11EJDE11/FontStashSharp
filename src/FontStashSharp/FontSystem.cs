@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using FontStashSharp.Rasterizers.StbTrueTypeSharp;
 using System.Runtime.InteropServices;
+using FontStashSharp.HarfBuzz;
 
 #if MONOGAME || FNA
 using Microsoft.Xna.Framework.Graphics;
@@ -29,6 +30,9 @@ namespace FontStashSharp
 
 		private FontAtlas _currentAtlas;
 
+		// HarfBuzz support
+		private readonly List<HarfBuzzFont> _harfBuzzFonts = new List<HarfBuzzFont>();
+
 		public int TextureWidth => _settings.TextureWidth;
 		public int TextureHeight => _settings.TextureHeight;
 
@@ -45,6 +49,8 @@ namespace FontStashSharp
 
 		public bool UseKernings { get; set; } = true;
 		public int? DefaultCharacter { get; set; } = ' ';
+
+		public bool UseTextShaping => _settings.UseTextShaping;
 
 		internal List<IFontSource> FontSources => _fontSources;
 
@@ -104,6 +110,14 @@ namespace FontStashSharp
 				Atlases.Clear();
 			}
 
+			// Dispose HarfBuzz fonts
+			if (_harfBuzzFonts != null)
+			{
+				foreach (var hbFont in _harfBuzzFonts)
+					hbFont?.Dispose();
+				_harfBuzzFonts.Clear();
+			}
+
 			SetFontAtlas(null);
 			_fonts.Clear();
 		}
@@ -112,6 +126,21 @@ namespace FontStashSharp
 		{
 			var fontSource = _fontLoader.Load(data);
 			_fontSources.Add(fontSource);
+
+			if (_settings.UseTextShaping)
+			{
+				// Create HarfBuzz font
+				try
+				{
+					var hbFont = new HarfBuzzFont(data);
+					_harfBuzzFonts.Add(hbFont);
+				}
+				catch
+				{
+					// If HarfBuzz font creation fails, add null placeholder
+					_harfBuzzFonts.Add(null);
+				}
+			}
 		}
 
 		public void AddFont(Stream stream)
@@ -164,18 +193,50 @@ namespace FontStashSharp
 			fontSourceIndex = 0;
 			var g = default(int?);
 
+	//		Debug.Print($"    GetCodepointIndex for U+{codepoint:X4}, checking {_fontSources.Count} font sources...");
 			for (var i = 0; i < _fontSources.Count; ++i)
 			{
 				var f = _fontSources[i];
 				g = f.GetGlyphId(codepoint);
+	//			Debug.Print($"      Font source {i}: GetGlyphId returned {g?.ToString() ?? "null"}");
 				if (g != null)
 				{
 					fontSourceIndex = i;
+	//				Debug.Print($"      -> Found in font source {i}!");
 					break;
 				}
 			}
 
+	//		if (g == null)
+	//		{
+	//			Debug.Print($"      -> NOT FOUND in any font source, defaulting to 0");
+	//		}
+
 			return g;
+		}
+
+		/// <summary>
+		/// Get HarfBuzz font for the specified font source index
+		/// </summary>
+		internal HarfBuzzFont GetHarfBuzzFont(int fontSourceIndex)
+		{
+			if (fontSourceIndex < 0 || fontSourceIndex >= _harfBuzzFonts.Count)
+				return null;
+
+			return _harfBuzzFonts[fontSourceIndex];
+		}
+
+		/// <summary>
+		/// Shape text using HarfBuzz
+		/// </summary>
+		internal ShapedText ShapeText(string text, float fontSize)
+		{
+			if (!_settings.UseTextShaping)
+			{
+				throw new InvalidOperationException("Text shaping is not enabled. Set UseTextShaping = true in FontSystemSettings.");
+			}
+
+			return TextShaper.Shape(this, text, fontSize);
 		}
 
 #if MONOGAME || FNA || STRIDE

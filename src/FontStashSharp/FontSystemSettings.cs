@@ -28,6 +28,7 @@ namespace FontStashSharp
 		private int _textureWidth = 1024, _textureHeight = 1024;
 		private float _fontResolutionFactor = 1.0f;
 		private int _kernelWidth = 0, _kernelHeight = 0;
+		private bool _useTextShaping = false;
 
 		public int TextureWidth
 		{
@@ -112,6 +113,17 @@ namespace FontStashSharp
 		public bool StbTrueTypeUseOldRasterizer { get; set; }
 
 		/// <summary>
+		/// Enable HarfBuzz text shaping for complex scripts (Arabic, Indic, emoji sequences, etc.)
+		/// When false, uses simple codepoint-to-glyph rendering
+		/// Default: false
+		/// </summary>
+		public bool UseTextShaping
+		{
+			get => _useTextShaping;
+			set => _useTextShaping = value;
+		}
+
+		/// <summary>
 		/// Use existing texture for storing glyphs
 		/// If this is set, then TextureWidth & TextureHeight are ignored
 		/// </summary>
@@ -151,6 +163,7 @@ namespace FontStashSharp
 				KernelWidth = KernelWidth,
 				KernelHeight = KernelHeight,
 				StbTrueTypeUseOldRasterizer = StbTrueTypeUseOldRasterizer,
+				UseTextShaping = UseTextShaping,
 				ExistingTexture = ExistingTexture,
 				ExistingTextureUsedSpace = ExistingTextureUsedSpace,
 				FontLoader = FontLoader
