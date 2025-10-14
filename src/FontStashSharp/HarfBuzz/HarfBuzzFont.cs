@@ -13,6 +13,7 @@ namespace FontStashSharp.HarfBuzz
 		private Face _face;
 		private Font _font;
 		private GCHandle _fontDataHandle;
+		private int _currentScale = -1;
 
 		public Font Font => _font;
 
@@ -42,6 +43,14 @@ namespace FontStashSharp.HarfBuzz
 			// Set scale to 26.6 fixed-point pixels (fontSize * 64)
 			// HarfBuzz will then output positions in 26.6 format directly
 			var scale = (int)(fontSize * 64);
+
+			// Skip if scale hasn't changed
+			if (_currentScale == scale)
+			{
+				return;
+			}
+
+			_currentScale = scale;
 			_font.SetScale(scale, scale);
 		}
 

@@ -1,5 +1,7 @@
 ﻿using FontStashSharp.Interfaces;
 using System;
+using System.Collections.Generic;
+
 
 #if MONOGAME || FNA
 using Microsoft.Xna.Framework;
@@ -24,10 +26,95 @@ namespace FontStashSharp
 			public int EffectAmount;
 		}
 
+		private struct ShapedTextCacheKey : IEquatable<ShapedTextCacheKey>
+		{
+			public readonly string Text;
+			public readonly float FontSize;
+
+			public ShapedTextCacheKey(string text, float fontSize)
+			{
+				Text = text;
+				FontSize = fontSize;
+			}
+
+			public bool Equals(ShapedTextCacheKey other)
+			{
+				return Text == other.Text && FontSize.Equals(other.FontSize);
+			}
+
+			public override bool Equals(object obj)
+			{
+				return obj is ShapedTextCacheKey other && Equals(other);
+			}
+
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					return ((Text?.GetHashCode() ?? 0) * 397) ^ FontSize.GetHashCode();
+				}
+			}
+		}
+
+		private class ShapedTextCache
+		{
+			private readonly Dictionary<ShapedTextCacheKey, LinkedListNode<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)>> _cache =
+				new Dictionary<ShapedTextCacheKey, LinkedListNode<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)>>();
+			private readonly LinkedList<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)> _lruList =
+				new LinkedList<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)>();
+			private const int MaxCacheEntries = 100;
+
+			public bool TryGet(ShapedTextCacheKey key, out HarfBuzz.ShapedText shapedText)
+			{
+				if (_cache.TryGetValue(key, out var node))
+				{
+					// Move to front (most recently used)
+					_lruList.Remove(node);
+					_lruList.AddFirst(node);
+					shapedText = node.Value.Value;
+					return true;
+				}
+
+				shapedText = null;
+				return false;
+			}
+
+			public void Add(ShapedTextCacheKey key, HarfBuzz.ShapedText shapedText)
+			{
+				// Check if already exists
+				if (_cache.ContainsKey(key))
+				{
+					return;
+				}
+
+				// Evict oldest entry if cache is full
+				if (_cache.Count >= MaxCacheEntries)
+				{
+					var oldest = _lruList.Last;
+					if (oldest != null)
+					{
+						_cache.Remove(oldest.Value.Key);
+						_lruList.RemoveLast();
+					}
+				}
+
+				// Add new entry
+				var node = _lruList.AddFirst((key, shapedText));
+				_cache[key] = node;
+			}
+
+			public void Clear()
+			{
+				_cache.Clear();
+				_lruList.Clear();
+			}
+		}
+
 		private readonly Int32Map<GlyphStorage> _storages = new Int32Map<GlyphStorage>();
 		private GlyphStorage _lastStorage;
 		private readonly Int32Map<int> Kernings = new Int32Map<int>();
 		private FontMetrics[] IndexedMetrics;
+		private readonly ShapedTextCache _shapedTextCache = new ShapedTextCache();
 
 		public FontSystem FontSystem { get; private set; }
 
@@ -325,6 +412,46 @@ namespace FontStashSharp
 			}
 
 			return result;
+		}
+
+		/// <summary>
+		/// Shape text using HarfBuzz with caching
+		/// </summary>
+		internal HarfBuzz.ShapedText GetShapedText(string text, float fontSize)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
+				return new HarfBuzz.ShapedText
+				{
+					Glyphs = new HarfBuzz.ShapedGlyph[0],
+					OriginalText = text ?? string.Empty,
+					FontSize = fontSize
+				};
+			}
+
+			var cacheKey = new ShapedTextCacheKey(text, fontSize);
+
+			// Try to get from cache
+			if (_shapedTextCache.TryGet(cacheKey, out var cachedResult))
+			{
+				return cachedResult;
+			}
+
+			// Not in cache, shape the text
+			var shapedText = FontSystem.ShapeText(text, fontSize);
+
+			// Add to cache
+			_shapedTextCache.Add(cacheKey, shapedText);
+
+			return shapedText;
+		}
+
+		/// <summary>
+		/// Clear the shaped text cache (call when fonts are added/removed)
+		/// </summary>
+		internal void ClearShapedTextCache()
+		{
+			_shapedTextCache.Clear();
 		}
 	}
 }

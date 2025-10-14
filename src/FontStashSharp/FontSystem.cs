@@ -140,6 +140,12 @@ namespace FontStashSharp
 					// If HarfBuzz font creation fails, add null placeholder
 					_harfBuzzFonts.Add(null);
 				}
+
+				// Clear shaped text cache in all existing fonts since font sources changed
+				foreach (var kvp in _fonts)
+				{
+					kvp.Value.ClearShapedTextCache();
+				}
 			}
 		}
 

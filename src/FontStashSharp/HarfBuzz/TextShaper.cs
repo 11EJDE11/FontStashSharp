@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace FontStashSharp.HarfBuzz
 {
@@ -18,8 +17,6 @@ namespace FontStashSharp.HarfBuzz
 		/// <returns>Shaped text with glyph information</returns>
 		public static ShapedText Shape(FontSystem fontSystem, string text, float fontSize)
 		{
-			if (text.Contains("Hello"))
-				Console.WriteLine("hi");
 			if (string.IsNullOrEmpty(text))
 			{
 				return new ShapedText
@@ -37,16 +34,12 @@ namespace FontStashSharp.HarfBuzz
 			// Shape each run with its appropriate font
 			foreach (var run in runs)
 			{
-				//Debug.Print($"Shaping run with font source {run.FontSourceIndex}...");
 				var hbFont = fontSystem.GetHarfBuzzFont(run.FontSourceIndex);
 
 				if (hbFont == null)
 				{
-					//Debug.Print($"ERROR: HarfBuzz font is null for font source {run.FontSourceIndex}!");
 					throw new InvalidOperationException($"HarfBuzz font not available for font source {run.FontSourceIndex}. Ensure font data is cached.");
 				}
-
-				//Debug.Print($"HarfBuzz font found for font source {run.FontSourceIndex}");
 
 				// Set the scale for this font size
 				hbFont.SetScale(fontSize);
@@ -108,12 +101,6 @@ namespace FontStashSharp.HarfBuzz
 			int currentRunStart = 0;
 			int currentFontSourceIndex = -1;
 
-			//if (text.Contains("Hello"))
-			//	Console.WriteLine("hi");
-
-			//Debug.Print($"=== Segmenting text: \"{text}\" ===");
-			//Debug.Print($"Total font sources: {fontSystem.FontSources.Count}");
-
 			for (int i = 0; i < text.Length; )
 			{
 				// Get the codepoint at position i
@@ -122,9 +109,6 @@ namespace FontStashSharp.HarfBuzz
 
 				// Find which font source has this codepoint
 				var glyphId = fontSystem.GetCodepointIndex(codepoint, out int fontSourceIndex);
-
-				char displayChar = text[i];
-				//Debug.Print($"  Char '{displayChar}' (U+{codepoint:X4}) -> Font source: {fontSourceIndex}, GlyphId: {glyphId?.ToString() ?? "null"}");
 
 				// If this is a new font source, start a new run
 				if (fontSourceIndex != currentFontSourceIndex)
@@ -157,13 +141,6 @@ namespace FontStashSharp.HarfBuzz
 					Length = text.Length - currentRunStart,
 					FontSourceIndex = currentFontSourceIndex
 				});
-			}
-
-			//Debug.Print($"Created {runs.Count} font runs:");
-			foreach (var run in runs)
-			{
-				var runText = text.Substring(run.Start, run.Length);
-				//Debug.Print($"  Run: \"{runText}\" (start={run.Start}, length={run.Length}, fontSource={run.FontSourceIndex})");
 			}
 
 			return runs;

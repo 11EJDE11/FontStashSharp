@@ -179,64 +179,108 @@ namespace FontStashSharp
 				return 0.0f;
 			}
 
-			// Shape the text
-			var shapedText = dynamicFont.FontSystem.ShapeText(text, FontSize);
-
 			Matrix transformation;
 			var scale = sourceScale ?? Utility.DefaultScale;
 			Prepare(position, rotation, origin, ref scale, out transformation);
 
-			// Get metrics for the first glyph's font
+			// Split text into lines
+			var lines = text.Split('\n');
+
+			// Get metrics for line height (use first font source as default)
 			int ascent = 0, lineHeight = 0;
-			if (shapedText.Glyphs.Length > 0)
+			if (dynamicFont.FontSystem.FontSources.Count > 0)
 			{
-				var firstGlyph = shapedText.Glyphs[0];
 				int descent, lh;
-				dynamicFont.FontSystem.FontSources[firstGlyph.FontSourceIndex].GetMetricsForSize(FontSize * dynamicFont.FontSystem.FontResolutionFactor, out ascent, out descent, out lh);
+				dynamicFont.FontSystem.FontSources[0].GetMetricsForSize(FontSize * dynamicFont.FontSystem.FontResolutionFactor, out ascent, out descent, out lh);
 				lineHeight = lh;
 			}
 
 			var pos = new Vector2(0, ascent);
-
+			float maxX = 0;
 			Color? firstColor = null;
-			for (int i = 0; i < shapedText.Glyphs.Length; i++)
+
+			for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
 			{
-				var shapedGlyph = shapedText.Glyphs[i];
+				var line = lines[lineIndex];
 
-				// Get the font glyph
-#if MONOGAME || FNA || STRIDE
-				var glyph = dynamicFont.GetGlyphByGlyphId(renderer.GraphicsDevice, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
-#else
-				var glyph = dynamicFont.GetGlyphByGlyphId(renderer.TextureManager, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
-#endif
-
-				if (glyph != null && !glyph.IsEmpty)
+				if (lineIndex > 0)
 				{
-					var color = source.GetNextColor();
-					firstColor = color;
+					// Render text style for previous line if needed
+					if (textStyle != TextStyle.None && firstColor != null)
+					{
+						RenderStyle(renderer, textStyle, pos,
+							lineHeight, ascent, firstColor.Value, ref transformation,
+							rotation, scale, layerDepth);
+					}
 
-					// Apply HarfBuzz positioning
-					var glyphPos = pos + new Vector2(
-						glyph.RenderOffset.X + shapedGlyph.XOffset / 64.0f,
-						glyph.RenderOffset.Y + shapedGlyph.YOffset / 64.0f
-					);
-
-					glyphPos = glyphPos.Transform(ref transformation);
-
-					renderer.Draw(glyph.Texture,
-						glyphPos,
-						glyph.TextureRectangle,
-						color,
-						rotation,
-						scale,
-						layerDepth);
+					// Move to next line
+					pos.X = 0.0f;
+					pos.Y += lineHeight + lineSpacing;
+					firstColor = null;
 				}
 
-				// Use HarfBuzz advance
-				pos.X += shapedGlyph.XAdvance / 64.0f;
-				pos.Y += shapedGlyph.YAdvance / 64.0f;
+				if (string.IsNullOrEmpty(line))
+				{
+					continue;
+				}
+
+				// Shape the line (uses cache)
+				var shapedText = dynamicFont.GetShapedText(line, FontSize);
+
+				// Render the shaped line
+				float lineStartX = pos.X;
+				for (int i = 0; i < shapedText.Glyphs.Length; i++)
+				{
+					var shapedGlyph = shapedText.Glyphs[i];
+
+					// Add character spacing between glyphs
+					if (i > 0 && characterSpacing > 0)
+					{
+						pos.X += characterSpacing;
+					}
+
+					// Get the font glyph
+#if MONOGAME || FNA || STRIDE
+					var glyph = dynamicFont.GetGlyphByGlyphId(renderer.GraphicsDevice, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
+#else
+					var glyph = dynamicFont.GetGlyphByGlyphId(renderer.TextureManager, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
+#endif
+
+					if (glyph != null && !glyph.IsEmpty)
+					{
+						var color = source.GetNextColor();
+						firstColor = color;
+
+						// Apply HarfBuzz positioning
+						var glyphPos = pos + new Vector2(
+							glyph.RenderOffset.X + shapedGlyph.XOffset / 64.0f,
+							glyph.RenderOffset.Y + shapedGlyph.YOffset / 64.0f
+						);
+
+						glyphPos = glyphPos.Transform(ref transformation);
+
+						renderer.Draw(glyph.Texture,
+							glyphPos,
+							glyph.TextureRectangle,
+							color,
+							rotation,
+							scale,
+							layerDepth);
+					}
+
+					// Use HarfBuzz advance
+					pos.X += shapedGlyph.XAdvance / 64.0f;
+					pos.Y += shapedGlyph.YAdvance / 64.0f;
+				}
+
+				// Track maximum X position
+				if (pos.X > maxX)
+				{
+					maxX = pos.X;
+				}
 			}
 
+			// Render text style for the last line if needed
 			if (textStyle != TextStyle.None && firstColor != null)
 			{
 				RenderStyle(renderer, textStyle, pos,
@@ -244,7 +288,7 @@ namespace FontStashSharp
 					rotation, scale, layerDepth);
 			}
 
-			return position.X + pos.X;
+			return position.X + maxX;
 		}
 
 		/// <summary>
