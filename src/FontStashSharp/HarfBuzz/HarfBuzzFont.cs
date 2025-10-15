@@ -19,7 +19,6 @@ namespace FontStashSharp.HarfBuzz
 
 		public HarfBuzzFont(byte[] fontData)
 		{
-
 			// Pin the byte array in memory
 			_fontDataHandle = GCHandle.Alloc(fontData, GCHandleType.Pinned);
 			var dataPtr = _fontDataHandle.AddrOfPinnedObject();
