@@ -273,6 +273,11 @@ namespace FontStashSharp
 			DynamicFontGlyph glyph;
 			if (storage.ShapedGlyphs.TryGetValue(key, out glyph))
 			{
+				// Render to atlas if device is available and glyph hasn't been rendered yet
+				if (device != null && glyph.Texture == null)
+				{
+					FontSystem.RenderGlyphOnAtlas(device, glyph);
+				}
 				return glyph;
 			}
 
@@ -372,6 +377,12 @@ namespace FontStashSharp
 			if (source.IsNull)
 				return Bounds.Empty;
 
+			// Use HarfBuzz shaping for measurement if enabled
+			if (FontSystem.UseTextShaping)
+			{
+				return InternalShapedTextBounds(source, position, characterSpacing, lineSpacing, effect, effectAmount);
+			}
+
 			var result = base.InternalTextBounds(source, position, characterSpacing, lineSpacing, effect, effectAmount);
 			if (effect != FontSystemEffect.None)
 			{
@@ -379,6 +390,107 @@ namespace FontStashSharp
 			}
 
 			return result;
+		}
+
+		private Bounds InternalShapedTextBounds(TextSource source, Vector2 position,
+			float characterSpacing, float lineSpacing, FontSystemEffect effect, int effectAmount)
+		{
+			// Get the text from source
+			var text = source.StringText.String ?? source.StringBuilderText?.ToString();
+			if (string.IsNullOrEmpty(text))
+			{
+				return Bounds.Empty;
+			}
+
+			// Split text into lines
+			var lines = text.Split('\n');
+
+			// Get metrics for line height
+			int ascent = 0, lineHeight = 0;
+			if (FontSystem.FontSources.Count > 0)
+			{
+				int descent, lh;
+				FontSystem.FontSources[0].GetMetricsForSize(FontSize * FontSystem.FontResolutionFactor, out ascent, out descent, out lh);
+				lineHeight = lh;
+			}
+
+			var x = position.X;
+			var y = position.Y + ascent;
+
+			float minx = x, maxx = x, miny = y, maxy = y;
+
+			for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+			{
+				var line = lines[lineIndex];
+
+				if (lineIndex > 0)
+				{
+					x = position.X;
+					y += lineHeight + lineSpacing;
+				}
+
+				if (string.IsNullOrEmpty(line))
+				{
+					continue;
+				}
+
+				// Shape the line
+				var shapedText = GetShapedText(line, FontSize);
+
+				float lineStartX = x;
+				for (int i = 0; i < shapedText.Glyphs.Length; i++)
+				{
+					var shapedGlyph = shapedText.Glyphs[i];
+
+					// Add character spacing between glyphs
+					if (i > 0 && characterSpacing > 0)
+					{
+						x += characterSpacing;
+					}
+
+					// Get the glyph (without rendering to atlas)
+					var glyph = GetGlyphByGlyphId(null, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
+
+					if (glyph != null)
+					{
+						// Calculate glyph bounds with HarfBuzz positioning
+						var glyphX = x + glyph.RenderOffset.X + (shapedGlyph.XOffset / 64.0f) * FontSystem.FontResolutionFactor;
+						var glyphY = y + glyph.RenderOffset.Y + (shapedGlyph.YOffset / 64.0f) * FontSystem.FontResolutionFactor;
+						var glyphX2 = glyphX + glyph.Size.X;
+						var glyphY2 = glyphY + glyph.Size.Y;
+
+						if (glyphX < minx) minx = glyphX;
+						if (glyphY < miny) miny = glyphY;
+						if (glyphX2 > maxx) maxx = glyphX2;
+						if (glyphY2 > maxy) maxy = glyphY2;
+					}
+
+					// Use glyph advance from font metrics instead of HarfBuzz advance
+					// HarfBuzz advances can be incorrect for some fonts, so we use the font's native metrics
+					// but keep HarfBuzz's positioning/shaping for complex scripts
+					if (glyph != null)
+					{
+						x += glyph.XAdvance;
+						y += (shapedGlyph.YAdvance / 64.0f) * FontSystem.FontResolutionFactor;
+					}
+					else
+					{
+						// Fallback to HarfBuzz advance if glyph is null
+						x += (shapedGlyph.XAdvance / 64.0f) * FontSystem.FontResolutionFactor;
+						y += (shapedGlyph.YAdvance / 64.0f) * FontSystem.FontResolutionFactor;
+					}
+				}
+
+				// Update maxx with final x position
+				if (x > maxx) maxx = x;
+			}
+
+			if (effect != FontSystemEffect.None)
+			{
+				maxx += effectAmount * 2;
+			}
+
+			return new Bounds(minx, miny, maxx, maxy);
 		}
 
 		private static int GetKerningsKey(int glyph1, int glyph2)
