@@ -75,6 +75,14 @@ namespace FontStashSharp
 
 			if (source.IsNull) return 0.0f;
 
+			// Check if we should use HarfBuzz text shaping
+			var dynamicFont = this as DynamicSpriteFont;
+			if (dynamicFont != null && dynamicFont.FontSystem.UseTextShaping)
+			{
+				return DrawShapedText(renderer, source, position, rotation, origin, sourceScale,
+					layerDepth, characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+			}
+
 			Matrix transformation;
 			var scale = sourceScale ?? Utility.DefaultScale;
 			Prepare(position, rotation, origin, ref scale, out transformation);
@@ -156,6 +164,145 @@ namespace FontStashSharp
 			return position.X + position.X;
 		}
 
+		private float DrawShapedText(IFontStashRenderer2 renderer, TextColorSource source, Vector2 position,
+			float rotation, Vector2 origin, Vector2? sourceScale,
+			float layerDepth, float characterSpacing, float lineSpacing,
+			TextStyle textStyle, FontSystemEffect effect, int effectAmount)
+		{
+			var dynamicFont = this as DynamicSpriteFont;
+			if (dynamicFont == null)
+			{
+				throw new InvalidOperationException("Text shaping is only supported with DynamicSpriteFont");
+			}
+
+			// Get the text from source
+			var text = source.TextSource.StringText.String ?? source.TextSource.StringBuilderText?.ToString();
+			if (string.IsNullOrEmpty(text))
+			{
+				return 0.0f;
+			}
+
+			Matrix transformation;
+			var scale = sourceScale ?? Utility.DefaultScale;
+			Prepare(position, rotation, origin, ref scale, out transformation);
+
+			// Split text into lines
+			var lines = text.Split('\n');
+
+			// Get metrics for line height (use first font source as default)
+			int ascent = 0, lineHeight = 0;
+			if (dynamicFont.FontSystem.FontSources.Count > 0)
+			{
+				int descent, lh;
+				dynamicFont.FontSystem.FontSources[0].GetMetricsForSize(FontSize * dynamicFont.FontSystem.FontResolutionFactor, out ascent, out descent, out lh);
+				lineHeight = lh;
+			}
+
+			var pos = new Vector2(0, ascent);
+			float maxX = 0;
+			Color? firstColor = null;
+			var topLeft = new VertexPositionColorTexture();
+			var topRight = new VertexPositionColorTexture();
+			var bottomLeft = new VertexPositionColorTexture();
+			var bottomRight = new VertexPositionColorTexture();
+
+			for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
+			{
+				var line = lines[lineIndex];
+
+				if (lineIndex > 0)
+				{
+					// Render text style for previous line if needed
+					if (textStyle != TextStyle.None && firstColor != null)
+					{
+						RenderStyle(renderer, textStyle, pos,
+							lineHeight, ascent, firstColor.Value, ref transformation, layerDepth,
+							ref topLeft, ref topRight, ref bottomLeft, ref bottomRight);
+					}
+
+					// Move to next line
+					pos.X = 0.0f;
+					pos.Y += lineHeight + lineSpacing;
+					firstColor = null;
+				}
+
+				if (string.IsNullOrEmpty(line))
+				{
+					continue;
+				}
+
+				// Shape the line at scaled fontSize to match glyph metrics (uses cache)
+				var shapedText = dynamicFont.GetShapedText(line, FontSize * dynamicFont.FontSystem.FontResolutionFactor);
+
+				// Render the shaped line
+				float lineStartX = pos.X;
+				for (int i = 0; i < shapedText.Glyphs.Length; i++)
+				{
+					var shapedGlyph = shapedText.Glyphs[i];
+
+					// Add character spacing between glyphs
+					if (i > 0 && characterSpacing > 0)
+					{
+						pos.X += characterSpacing;
+					}
+
+					// Get the font glyph
+#if MONOGAME || FNA || STRIDE
+					var glyph = dynamicFont.GetGlyphByGlyphId(renderer.GraphicsDevice, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
+#else
+					var glyph = dynamicFont.GetGlyphByGlyphId(renderer.TextureManager, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
+#endif
+
+					if (glyph != null && !glyph.IsEmpty)
+					{
+						var color = source.GetNextColor();
+						firstColor = color;
+
+						// Apply HarfBuzz positioning
+						var glyphPos = pos + new Vector2(
+							glyph.RenderOffset.X + (shapedGlyph.XOffset / 64.0f),
+							glyph.RenderOffset.Y + (shapedGlyph.YOffset / 64.0f)
+						);
+
+						var size = new Vector2(glyph.Size.X, glyph.Size.Y);
+						renderer.DrawQuad(glyph.Texture, color, glyphPos, ref transformation,
+							layerDepth, size, glyph.TextureRectangle,
+							ref topLeft, ref topRight, ref bottomLeft, ref bottomRight);
+					}
+
+					// Use glyph advance from font metrics instead of HarfBuzz advance
+					// We use the font's native metrics but keep HarfBuzz's positioning/shaping for complex scripts
+					if (glyph != null)
+					{
+						pos.X += glyph.XAdvance;
+						pos.Y += (shapedGlyph.YAdvance / 64.0f);
+					}
+					else
+					{
+						// Fallback to HarfBuzz advance if glyph is null
+						pos.X += (shapedGlyph.XAdvance / 64.0f);
+						pos.Y += (shapedGlyph.YAdvance / 64.0f);
+					}
+				}
+
+				// Track maximum X position
+				if (pos.X > maxX)
+				{
+					maxX = pos.X;
+				}
+			}
+
+			// Render text style for the last line if needed
+			if (textStyle != TextStyle.None && firstColor != null)
+			{
+				RenderStyle(renderer, textStyle, pos,
+					lineHeight, ascent, firstColor.Value, ref transformation, layerDepth,
+					ref topLeft, ref topRight, ref bottomLeft, ref bottomRight);
+			}
+
+			return position.X + maxX;
+		}
+
 		/// <summary>
 		/// Draws a text
 		/// </summary>
@@ -170,7 +317,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, string text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale, layerDepth,
@@ -190,7 +337,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, string text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,
@@ -210,7 +357,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringSegment text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale, layerDepth,
@@ -230,7 +377,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringSegment text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,
@@ -250,7 +397,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringBuilder text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale, layerDepth,
@@ -270,7 +417,7 @@ namespace FontStashSharp
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringBuilder text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,

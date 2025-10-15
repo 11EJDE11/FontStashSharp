@@ -442,8 +442,8 @@ namespace FontStashSharp
 					continue;
 				}
 
-				// Shape the line
-				var shapedText = GetShapedText(line, FontSize);
+				// Shape the line at scaled fontSize to match glyph metrics
+				var shapedText = GetShapedText(line, FontSize * FontSystem.FontResolutionFactor);
 
 				float lineStartX = x;
 				for (int i = 0; i < shapedText.Glyphs.Length; i++)
@@ -462,8 +462,8 @@ namespace FontStashSharp
 					if (glyph != null)
 					{
 						// Calculate glyph bounds with HarfBuzz positioning
-						var glyphX = x + glyph.RenderOffset.X + (shapedGlyph.XOffset / 64.0f) * FontSystem.FontResolutionFactor;
-						var glyphY = y + glyph.RenderOffset.Y + (shapedGlyph.YOffset / 64.0f) * FontSystem.FontResolutionFactor;
+						var glyphX = x + glyph.RenderOffset.X + (shapedGlyph.XOffset / 64.0f);
+						var glyphY = y + glyph.RenderOffset.Y + (shapedGlyph.YOffset / 64.0f);
 						var glyphX2 = glyphX + glyph.Size.X;
 						var glyphY2 = glyphY + glyph.Size.Y;
 
@@ -474,18 +474,17 @@ namespace FontStashSharp
 					}
 
 					// Use glyph advance from font metrics instead of HarfBuzz advance
-					// HarfBuzz advances can be incorrect for some fonts, so we use the font's native metrics
-					// but keep HarfBuzz's positioning/shaping for complex scripts
+					// We use the font's native metrics but keep HarfBuzz's positioning/shaping for complex scripts
 					if (glyph != null)
 					{
 						x += glyph.XAdvance;
-						y += (shapedGlyph.YAdvance / 64.0f) * FontSystem.FontResolutionFactor;
+						y += (shapedGlyph.YAdvance / 64.0f);
 					}
 					else
 					{
 						// Fallback to HarfBuzz advance if glyph is null
-						x += (shapedGlyph.XAdvance / 64.0f) * FontSystem.FontResolutionFactor;
-						y += (shapedGlyph.YAdvance / 64.0f) * FontSystem.FontResolutionFactor;
+						x += (shapedGlyph.XAdvance / 64.0f);
+						y += (shapedGlyph.YAdvance / 64.0f);
 					}
 				}
 
