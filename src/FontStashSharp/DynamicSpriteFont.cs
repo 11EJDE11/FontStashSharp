@@ -62,7 +62,12 @@ namespace FontStashSharp
 				new Dictionary<ShapedTextCacheKey, LinkedListNode<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)>>();
 			private readonly LinkedList<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)> _lruList =
 				new LinkedList<(ShapedTextCacheKey Key, HarfBuzz.ShapedText Value)>();
-			private const int MaxCacheEntries = 100;
+			private readonly int _maxCacheEntries;
+
+			public ShapedTextCache(int maxCacheEntries)
+			{
+				_maxCacheEntries = maxCacheEntries;
+			}
 
 			public bool TryGet(ShapedTextCacheKey key, out HarfBuzz.ShapedText shapedText)
 			{
@@ -88,7 +93,7 @@ namespace FontStashSharp
 				}
 
 				// Evict oldest entry if cache is full
-				if (_cache.Count >= MaxCacheEntries)
+				if (_cache.Count >= _maxCacheEntries)
 				{
 					var oldest = _lruList.Last;
 					if (oldest != null)
@@ -114,7 +119,7 @@ namespace FontStashSharp
 		private GlyphStorage _lastStorage;
 		private readonly Int32Map<int> Kernings = new Int32Map<int>();
 		private FontMetrics[] IndexedMetrics;
-		private readonly ShapedTextCache _shapedTextCache = new ShapedTextCache();
+		private readonly ShapedTextCache _shapedTextCache;
 
 		public FontSystem FontSystem { get; private set; }
 
@@ -127,6 +132,9 @@ namespace FontStashSharp
 
 			FontSystem = system;
 			RenderFontSizeMultiplicator = FontSystem.FontResolutionFactor;
+
+			// Initialize shaped text cache with configured size from FontSystem settings
+			_shapedTextCache = new ShapedTextCache(system.ShapedTextCacheSize);
 		}
 
 		internal Int32Map<DynamicFontGlyph> GetGlyphs(FontSystemEffect effect, int effectAmount)

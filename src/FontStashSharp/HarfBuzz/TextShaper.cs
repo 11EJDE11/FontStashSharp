@@ -29,7 +29,10 @@ namespace FontStashSharp.HarfBuzz
 
 			// Segment text into runs based on font source
 			var runs = SegmentTextIntoFontRuns(fontSystem, text);
-			var allShapedGlyphs = new List<ShapedGlyph>();
+
+			// Pre-allocate list with estimated capacity (1 glyph per character as baseline)
+			// This reduces allocations and list resizing during shaping
+			var allShapedGlyphs = new List<ShapedGlyph>(text.Length);
 
 			// Shape each run with its appropriate font
 			foreach (var run in runs)
@@ -104,8 +107,19 @@ namespace FontStashSharp.HarfBuzz
 			for (int i = 0; i < text.Length; )
 			{
 				// Get the codepoint at position i
-				int codepoint = char.ConvertToUtf32(text, i);
-				int charCount = char.IsSurrogatePair(text, i) ? 2 : 1;
+				// Optimize: Check for surrogate pair first (cheaper than ConvertToUtf32)
+				int codepoint;
+				int charCount;
+				if (i < text.Length - 1 && char.IsSurrogatePair(text, i))
+				{
+					codepoint = char.ConvertToUtf32(text, i);
+					charCount = 2;
+				}
+				else
+				{
+					codepoint = text[i];
+					charCount = 1;
+				}
 
 				// Find which font source has this codepoint
 				var glyphId = fontSystem.GetCodepointIndex(codepoint, out int fontSourceIndex);

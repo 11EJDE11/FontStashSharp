@@ -51,6 +51,7 @@ namespace FontStashSharp
 		public int? DefaultCharacter { get; set; } = ' ';
 
 		public bool UseTextShaping => _settings.UseTextShaping;
+		public int ShapedTextCacheSize => _settings.ShapedTextCacheSize;
 
 		internal List<IFontSource> FontSources => _fontSources;
 

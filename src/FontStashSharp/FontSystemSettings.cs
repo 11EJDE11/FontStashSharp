@@ -29,6 +29,7 @@ namespace FontStashSharp
 		private float _fontResolutionFactor = 1.0f;
 		private int _kernelWidth = 0, _kernelHeight = 0;
 		private bool _useTextShaping = false;
+		private int _shapedTextCacheSize = 100;
 
 		public int TextureWidth
 		{
@@ -139,6 +140,25 @@ namespace FontStashSharp
 		/// </summary>
 		public IFontLoader FontLoader { get; set; }
 
+		/// <summary>
+		/// Maximum number of entries in the shaped text cache (for HarfBuzz text shaping)
+		/// Higher values use more memory but reduce shaping overhead for repeated text
+		/// Default: 100
+		/// </summary>
+		public int ShapedTextCacheSize
+		{
+			get => _shapedTextCacheSize;
+			set
+			{
+				if (value < 1)
+				{
+					throw new ArgumentOutOfRangeException(nameof(value), value, "Cache size must be at least 1");
+				}
+
+				_shapedTextCacheSize = value;
+			}
+		}
+
 		public FontSystemSettings()
 		{
 			TextureWidth = FontSystemDefaults.TextureWidth;
@@ -149,6 +169,7 @@ namespace FontStashSharp
 			KernelHeight = FontSystemDefaults.KernelHeight;
 			StbTrueTypeUseOldRasterizer = FontSystemDefaults.StbTrueTypeUseOldRasterizer;
 			FontLoader = FontSystemDefaults.FontLoader;
+			ShapedTextCacheSize = FontSystemDefaults.ShapedTextCacheSize;
 		}
 
 		public FontSystemSettings Clone()
@@ -166,7 +187,8 @@ namespace FontStashSharp
 				UseTextShaping = UseTextShaping,
 				ExistingTexture = ExistingTexture,
 				ExistingTextureUsedSpace = ExistingTextureUsedSpace,
-				FontLoader = FontLoader
+				FontLoader = FontLoader,
+				ShapedTextCacheSize = ShapedTextCacheSize
 			};
 		}
 	}
