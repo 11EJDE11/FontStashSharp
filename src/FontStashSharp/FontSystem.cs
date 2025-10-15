@@ -52,6 +52,7 @@ namespace FontStashSharp
 
 		public bool UseTextShaping => _settings.UseTextShaping;
 		public int ShapedTextCacheSize => _settings.ShapedTextCacheSize;
+		public bool EnableBiDi => _settings.EnableBiDi;
 
 		internal List<IFontSource> FontSources => _fontSources;
 
@@ -200,25 +201,16 @@ namespace FontStashSharp
 			fontSourceIndex = 0;
 			var g = default(int?);
 
-	//		Debug.Print($"    GetCodepointIndex for U+{codepoint:X4}, checking {_fontSources.Count} font sources...");
 			for (var i = 0; i < _fontSources.Count; ++i)
 			{
 				var f = _fontSources[i];
 				g = f.GetGlyphId(codepoint);
-	//			Debug.Print($"      Font source {i}: GetGlyphId returned {g?.ToString() ?? "null"}");
 				if (g != null)
 				{
-					fontSourceIndex = i;
-	//				Debug.Print($"      -> Found in font source {i}!");
+					fontSourceIndex = i;;
 					break;
 				}
 			}
-
-	//		if (g == null)
-	//		{
-	//			Debug.Print($"      -> NOT FOUND in any font source, defaulting to 0");
-	//		}
-
 			return g;
 		}
 

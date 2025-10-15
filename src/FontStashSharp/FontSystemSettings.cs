@@ -30,6 +30,7 @@ namespace FontStashSharp
 		private int _kernelWidth = 0, _kernelHeight = 0;
 		private bool _useTextShaping = false;
 		private int _shapedTextCacheSize = 100;
+		private bool _enableBiDi = true;
 
 		public int TextureWidth
 		{
@@ -159,6 +160,18 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Enable bidirectional (BiDi) text support for mixed LTR/RTL text
+		/// When enabled, text with mixed Latin and RTL scripts (Arabic, Hebrew, etc.) will be displayed in correct visual order
+		/// Only applies when UseTextShaping is true
+		/// Default: true
+		/// </summary>
+		public bool EnableBiDi
+		{
+			get => _enableBiDi;
+			set => _enableBiDi = value;
+		}
+
 		public FontSystemSettings()
 		{
 			TextureWidth = FontSystemDefaults.TextureWidth;
@@ -170,6 +183,7 @@ namespace FontStashSharp
 			StbTrueTypeUseOldRasterizer = FontSystemDefaults.StbTrueTypeUseOldRasterizer;
 			FontLoader = FontSystemDefaults.FontLoader;
 			ShapedTextCacheSize = FontSystemDefaults.ShapedTextCacheSize;
+			EnableBiDi = true;
 		}
 
 		public FontSystemSettings Clone()
@@ -188,7 +202,8 @@ namespace FontStashSharp
 				ExistingTexture = ExistingTexture,
 				ExistingTextureUsedSpace = ExistingTextureUsedSpace,
 				FontLoader = FontLoader,
-				ShapedTextCacheSize = ShapedTextCacheSize
+				ShapedTextCacheSize = ShapedTextCacheSize,
+				EnableBiDi = EnableBiDi
 			};
 		}
 	}

@@ -27,58 +27,83 @@ namespace FontStashSharp.HarfBuzz
 				};
 			}
 
-			// Segment text into runs based on font source
-			var runs = SegmentTextIntoFontRuns(fontSystem, text);
-
 			// Pre-allocate list with estimated capacity (1 glyph per character as baseline)
 			// This reduces allocations and list resizing during shaping
 			var allShapedGlyphs = new List<ShapedGlyph>(text.Length);
 
-			// Shape each run with its appropriate font
-			foreach (var run in runs)
+			// Step 1: Analyze text for bidirectional runs and reorder to visual order (if enabled)
+			List<DirectionalRun> directionalRuns;
+			if (fontSystem.EnableBiDi)
 			{
-				var hbFont = fontSystem.GetHarfBuzzFont(run.FontSourceIndex);
-
-				if (hbFont == null)
+				directionalRuns = BiDiAnalyzer.AnalyzeAndReorder(text);
+			}
+			else
+			{
+				// BiDi disabled - treat entire text as single LTR run
+				directionalRuns = new List<DirectionalRun>
 				{
-					throw new InvalidOperationException($"HarfBuzz font not available for font source {run.FontSourceIndex}. Ensure font data is cached.");
-				}
-
-				// Set the scale for this font size
-				hbFont.SetScale(fontSize);
-
-				// Create and configure HarfBuzz buffer
-				using (var buffer = new HarfBuzzSharp.Buffer())
-				{
-					// Add text run to buffer
-					buffer.AddUtf16(text, run.Start, run.Length);
-
-					// Set buffer properties (auto-detect script, direction, language)
-					buffer.GuessSegmentProperties();
-
-					// Shape the text
-					hbFont.Shape(buffer);
-
-					// Get the shaped output
-					var glyphInfos = buffer.GlyphInfos;
-					var glyphPositions = buffer.GlyphPositions;
-
-					// Convert to our ShapedGlyph format
-					for (int i = 0; i < glyphInfos.Length; i++)
+					new DirectionalRun
 					{
-						var info = glyphInfos[i];
-						var pos = glyphPositions[i];
+						Start = 0,
+						Length = text.Length,
+						Direction = TextDirection.LTR
+					}
+				};
+			}
 
-						allShapedGlyphs.Add(new ShapedGlyph
+			// Step 2: Process each directional run in visual order
+			foreach (var dirRun in directionalRuns)
+			{
+				// Step 3: Within each directional run, segment by font source
+				var fontRuns = SegmentTextIntoFontRuns(fontSystem, text, dirRun.Start, dirRun.Length);
+
+				// Step 4: Shape each font run with its appropriate font
+				foreach (var fontRun in fontRuns)
+				{
+					var hbFont = fontSystem.GetHarfBuzzFont(fontRun.FontSourceIndex);
+
+					if (hbFont == null)
+					{
+						throw new InvalidOperationException($"HarfBuzz font not available for font source {fontRun.FontSourceIndex}. Ensure font data is cached.");
+					}
+
+					// Set the scale for this font size
+					hbFont.SetScale(fontSize);
+
+					// Create and configure HarfBuzz buffer
+					using (var buffer = new HarfBuzzSharp.Buffer())
+					{
+						// Add text run to buffer
+						buffer.AddUtf16(text, fontRun.Start, fontRun.Length);
+
+						// Let HarfBuzz auto-detect script, direction, and language
+						// This properly handles each word/segment without reversing entire runs
+						buffer.GuessSegmentProperties();
+
+						// Shape the text
+						hbFont.Shape(buffer);
+
+						// Get the shaped output
+						var glyphInfos = buffer.GlyphInfos;
+						var glyphPositions = buffer.GlyphPositions;
+
+						// Convert to our ShapedGlyph format
+						for (int i = 0; i < glyphInfos.Length; i++)
 						{
-							GlyphId = (int)info.Codepoint, // This is actually the glyph ID after shaping
-							Cluster = (int)info.Cluster + run.Start, // Adjust cluster to global text position
-							FontSourceIndex = run.FontSourceIndex,
-							XAdvance = pos.XAdvance,
-							YAdvance = pos.YAdvance,
-							XOffset = pos.XOffset,
-							YOffset = pos.YOffset
-						});
+							var info = glyphInfos[i];
+							var pos = glyphPositions[i];
+
+							allShapedGlyphs.Add(new ShapedGlyph
+							{
+								GlyphId = (int)info.Codepoint, // This is actually the glyph ID after shaping
+								Cluster = (int)info.Cluster + fontRun.Start, // Adjust cluster to global text position
+								FontSourceIndex = fontRun.FontSourceIndex,
+								XAdvance = pos.XAdvance,
+								YAdvance = pos.YAdvance,
+								XOffset = pos.XOffset,
+								YOffset = pos.YOffset
+							});
+						}
 					}
 				}
 			}
@@ -98,13 +123,14 @@ namespace FontStashSharp.HarfBuzz
 			public int FontSourceIndex;
 		}
 
-		private static List<FontRun> SegmentTextIntoFontRuns(FontSystem fontSystem, string text)
+		private static List<FontRun> SegmentTextIntoFontRuns(FontSystem fontSystem, string text, int start, int length)
 		{
 			var runs = new List<FontRun>();
-			int currentRunStart = 0;
+			int currentRunStart = start;
 			int currentFontSourceIndex = -1;
+			int end = start + length;
 
-			for (int i = 0; i < text.Length; )
+			for (int i = start; i < end; )
 			{
 				// Get the codepoint at position i
 				// Optimize: Check for surrogate pair first (cheaper than ConvertToUtf32)
@@ -152,7 +178,7 @@ namespace FontStashSharp.HarfBuzz
 				runs.Add(new FontRun
 				{
 					Start = currentRunStart,
-					Length = text.Length - currentRunStart,
+					Length = end - currentRunStart,
 					FontSourceIndex = currentFontSourceIndex
 				});
 			}
