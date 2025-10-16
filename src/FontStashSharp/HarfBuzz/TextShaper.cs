@@ -6,7 +6,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// Handles text shaping using HarfBuzz
 	/// </summary>
-	internal static class TextShaper
+	public static class TextShaper
 	{
 		/// <summary>
 		/// Shape text using HarfBuzz

@@ -5,7 +5,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// Direction of text flow
 	/// </summary>
-	internal enum TextDirection
+	public enum TextDirection
 	{
 		/// <summary>
 		/// Left-to-right text (Latin, Cyrillic, etc.)
@@ -21,7 +21,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// Represents a segment of text with uniform directionality
 	/// </summary>
-	internal struct DirectionalRun
+	public struct DirectionalRun
 	{
 		/// <summary>
 		/// Start position in the original text
@@ -42,7 +42,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// A simple bidirectional text analyzer for mixed LTR/RTL text
 	/// </summary>
-	internal static class BiDiAnalyzer
+	public static class BiDiAnalyzer
 	{
 		/// <summary>
 		/// Segments text into runs of consistent directionality
@@ -77,18 +77,7 @@ namespace FontStashSharp.HarfBuzz
 				}
 				else if (!currentDirection.HasValue)
 				{
-					// First strong character - handle leading neutral characters
-					if (i > runStart)
-					{
-						// Add leading neutral characters to a run with detected direction
-						runs.Add(new DirectionalRun
-						{
-							Start = runStart,
-							Length = i - runStart,
-							Direction = charDirection.Value
-						});
-						runStart = i;
-					}
+					// First strong character - leading neutral characters become part of this run
 					currentDirection = charDirection;
 				}
 			}

@@ -3,7 +3,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// Represents a single shaped glyph from HarfBuzz
 	/// </summary>
-	internal class ShapedGlyph
+	public class ShapedGlyph
 	{
 		/// <summary>
 		/// The glyph ID from the font (not the codepoint)
@@ -44,7 +44,7 @@ namespace FontStashSharp.HarfBuzz
 	/// <summary>
 	/// Contains the result of HarfBuzz text shaping
 	/// </summary>
-	internal class ShapedText
+	public class ShapedText
 	{
 		/// <summary>
 		/// The shaped glyphs in visual order
