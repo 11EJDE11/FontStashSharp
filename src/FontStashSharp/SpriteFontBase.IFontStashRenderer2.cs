@@ -75,7 +75,6 @@ namespace FontStashSharp
 
 			if (source.IsNull) return 0.0f;
 
-			// Check if we should use HarfBuzz text shaping
 			var dynamicFont = this as DynamicSpriteFont;
 			if (dynamicFont != null && dynamicFont.FontSystem.UseTextShaping)
 			{
@@ -175,7 +174,6 @@ namespace FontStashSharp
 				throw new InvalidOperationException("Text shaping is only supported with DynamicSpriteFont");
 			}
 
-			// Get the text from source
 			var text = source.TextSource.StringText.String ?? source.TextSource.StringBuilderText?.ToString();
 			if (string.IsNullOrEmpty(text))
 			{
@@ -186,10 +184,8 @@ namespace FontStashSharp
 			var scale = sourceScale ?? Utility.DefaultScale;
 			Prepare(position, rotation, origin, ref scale, out transformation);
 
-			// Split text into lines
 			var lines = text.Split('\n');
 
-			// Get metrics for line height (use first font source as default)
 			int ascent = 0, lineHeight = 0;
 			if (dynamicFont.FontSystem.FontSources.Count > 0)
 			{
@@ -212,7 +208,6 @@ namespace FontStashSharp
 
 				if (lineIndex > 0)
 				{
-					// Render text style for previous line if needed
 					if (textStyle != TextStyle.None && firstColor != null)
 					{
 						RenderStyle(renderer, textStyle, pos,
@@ -220,7 +215,6 @@ namespace FontStashSharp
 							ref topLeft, ref topRight, ref bottomLeft, ref bottomRight);
 					}
 
-					// Move to next line
 					pos.X = 0.0f;
 					pos.Y += lineHeight + lineSpacing;
 					firstColor = null;
@@ -231,22 +225,18 @@ namespace FontStashSharp
 					continue;
 				}
 
-				// Shape the line at scaled fontSize to match glyph metrics (uses cache)
 				var shapedText = dynamicFont.GetShapedText(line, FontSize * dynamicFont.FontSystem.FontResolutionFactor);
 
-				// Render the shaped line
 				float lineStartX = pos.X;
 				for (int i = 0; i < shapedText.Glyphs.Length; i++)
 				{
 					var shapedGlyph = shapedText.Glyphs[i];
 
-					// Add character spacing between glyphs
 					if (i > 0 && characterSpacing > 0)
 					{
 						pos.X += characterSpacing;
 					}
 
-					// Get the font glyph
 #if MONOGAME || FNA || STRIDE
 					var glyph = dynamicFont.GetGlyphByGlyphId(renderer.GraphicsDevice, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
 #else
@@ -270,8 +260,6 @@ namespace FontStashSharp
 							ref topLeft, ref topRight, ref bottomLeft, ref bottomRight);
 					}
 
-					// Use glyph advance from font metrics instead of HarfBuzz advance
-					// We use the font's native metrics but keep HarfBuzz's positioning/shaping for complex scripts
 					if (glyph != null)
 					{
 						pos.X += glyph.XAdvance;
@@ -279,20 +267,18 @@ namespace FontStashSharp
 					}
 					else
 					{
-						// Fallback to HarfBuzz advance if glyph is null
+						// Fallback
 						pos.X += (shapedGlyph.XAdvance / 64.0f);
 						pos.Y += (shapedGlyph.YAdvance / 64.0f);
 					}
 				}
 
-				// Track maximum X position
 				if (pos.X > maxX)
 				{
 					maxX = pos.X;
 				}
 			}
 
-			// Render text style for the last line if needed
 			if (textStyle != TextStyle.None && firstColor != null)
 			{
 				RenderStyle(renderer, textStyle, pos,

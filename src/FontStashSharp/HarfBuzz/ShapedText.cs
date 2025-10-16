@@ -6,7 +6,7 @@ namespace FontStashSharp.HarfBuzz
 	public class ShapedGlyph
 	{
 		/// <summary>
-		/// The glyph ID from the font (not the codepoint)
+		/// The glyph ID from the font
 		/// </summary>
 		public int GlyphId;
 

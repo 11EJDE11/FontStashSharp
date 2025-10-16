@@ -162,7 +162,7 @@ namespace FontStashSharp
 
 		/// <summary>
 		/// Enable bidirectional (BiDi) text support for mixed LTR/RTL text
-		/// When enabled, text with mixed Latin and RTL scripts (Arabic, Hebrew, etc.) will be displayed in correct visual order
+		/// When enabled, text with mixed Latin and RTL scripts (Arabic, Hebrew, etc.) will be displayed in correct order
 		/// Only applies when UseTextShaping is true
 		/// Default: true
 		/// </summary>

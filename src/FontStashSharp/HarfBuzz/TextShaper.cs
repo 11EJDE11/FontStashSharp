@@ -27,11 +27,9 @@ namespace FontStashSharp.HarfBuzz
 				};
 			}
 
-			// Pre-allocate list with estimated capacity (1 glyph per character as baseline)
-			// This reduces allocations and list resizing during shaping
 			var allShapedGlyphs = new List<ShapedGlyph>(text.Length);
 
-			// Step 1: Analyze text for bidirectional runs and reorder to visual order (if enabled)
+			// Step 1: Analyze text for bidirectional runs (if enabled)
 			List<DirectionalRun> directionalRuns;
 			if (fontSystem.EnableBiDi)
 			{
@@ -51,7 +49,7 @@ namespace FontStashSharp.HarfBuzz
 				};
 			}
 
-			// Step 2: Process each directional run in visual order
+			// Step 2: Process each directional run
 			foreach (var dirRun in directionalRuns)
 			{
 				// Step 3: Within each directional run, segment by font source
@@ -67,20 +65,13 @@ namespace FontStashSharp.HarfBuzz
 						throw new InvalidOperationException($"HarfBuzz font not available for font source {fontRun.FontSourceIndex}. Ensure font data is cached.");
 					}
 
-					// Set the scale for this font size
 					hbFont.SetScale(fontSize);
 
-					// Create and configure HarfBuzz buffer
 					using (var buffer = new HarfBuzzSharp.Buffer())
 					{
 						// Add text run to buffer
 						buffer.AddUtf16(text, fontRun.Start, fontRun.Length);
-
-						// Let HarfBuzz auto-detect script, direction, and language
-						// This properly handles each word/segment without reversing entire runs
 						buffer.GuessSegmentProperties();
-
-						// Shape the text
 						hbFont.Shape(buffer);
 
 						// Get the shaped output
@@ -95,8 +86,8 @@ namespace FontStashSharp.HarfBuzz
 
 							allShapedGlyphs.Add(new ShapedGlyph
 							{
-								GlyphId = (int)info.Codepoint, // This is actually the glyph ID after shaping
-								Cluster = (int)info.Cluster + fontRun.Start, // Adjust cluster to global text position
+								GlyphId = (int)info.Codepoint,
+								Cluster = (int)info.Cluster + fontRun.Start,
 								FontSourceIndex = fontRun.FontSourceIndex,
 								XAdvance = pos.XAdvance,
 								YAdvance = pos.YAdvance,
@@ -133,7 +124,6 @@ namespace FontStashSharp.HarfBuzz
 			for (int i = start; i < end; )
 			{
 				// Get the codepoint at position i
-				// Optimize: Check for surrogate pair first (cheaper than ConvertToUtf32)
 				int codepoint;
 				int charCount;
 				if (i < text.Length - 1 && char.IsSurrogatePair(text, i))

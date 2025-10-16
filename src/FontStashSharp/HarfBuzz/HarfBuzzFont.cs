@@ -26,10 +26,8 @@ namespace FontStashSharp.HarfBuzz
 			// Create HarfBuzz blob from font data
 			_blob = new Blob(dataPtr, fontData.Length, MemoryMode.ReadOnly);
 
-			// Create face from blob
+			// Create face from blob and font from face
 			_face = new Face(_blob, 0);
-
-			// Create font from face
 			_font = new Font(_face);
 		}
 

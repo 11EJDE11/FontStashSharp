@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 
-
 #if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,7 +20,7 @@ namespace FontStashSharp
 		private class GlyphStorage
 		{
 			public Int32Map<DynamicFontGlyph> Glyphs = new Int32Map<DynamicFontGlyph>();
-			public Int32Map<DynamicFontGlyph> ShapedGlyphs = new Int32Map<DynamicFontGlyph>(); // For HarfBuzz glyph IDs
+			public Int32Map<DynamicFontGlyph> ShapedGlyphs = new Int32Map<DynamicFontGlyph>();
 			public FontSystemEffect Effect;
 			public int EffectAmount;
 		}
@@ -133,7 +132,6 @@ namespace FontStashSharp
 			FontSystem = system;
 			RenderFontSizeMultiplicator = FontSystem.FontResolutionFactor;
 
-			// Initialize shaped text cache with configured size from FontSystem settings
 			_shapedTextCache = new ShapedTextCache(system.ShapedTextCacheSize);
 		}
 
@@ -257,7 +255,7 @@ namespace FontStashSharp
 		}
 
 		/// <summary>
-		/// Get a glyph by its glyph ID (for HarfBuzz shaped text)
+		/// Get a glyph by its glyph ID
 		/// </summary>
 #if MONOGAME || FNA || STRIDE
 		internal DynamicFontGlyph GetGlyphByGlyphId(GraphicsDevice device, int glyphId, int fontSourceIndex, FontSystemEffect effect, int effectAmount)
@@ -275,13 +273,11 @@ namespace FontStashSharp
 
 			var storage = GetGlyphStorage(effect, effectAmount);
 
-			// Create a key that combines glyph ID and font source index
 			var key = (fontSourceIndex << 24) | glyphId;
 
 			DynamicFontGlyph glyph;
 			if (storage.ShapedGlyphs.TryGetValue(key, out glyph))
 			{
-				// Render to atlas if device is available and glyph hasn't been rendered yet
 				if (device != null && glyph.Texture == null)
 				{
 					FontSystem.RenderGlyphOnAtlas(device, glyph);
@@ -289,7 +285,6 @@ namespace FontStashSharp
 				return glyph;
 			}
 
-			// Get glyph metrics from font source
 			var fontSize = FontSize * FontSystem.FontResolutionFactor;
 			var font = FontSystem.FontSources[fontSourceIndex];
 
@@ -314,7 +309,6 @@ namespace FontStashSharp
 
 			storage.ShapedGlyphs[key] = glyph;
 
-			// Render to atlas if device is available
 			if (device != null && glyph.Texture == null)
 			{
 				FontSystem.RenderGlyphOnAtlas(device, glyph);
@@ -385,7 +379,6 @@ namespace FontStashSharp
 			if (source.IsNull)
 				return Bounds.Empty;
 
-			// Use HarfBuzz shaping for measurement if enabled
 			if (FontSystem.UseTextShaping)
 			{
 				return InternalShapedTextBounds(source, position, characterSpacing, lineSpacing, effect, effectAmount);
@@ -403,17 +396,14 @@ namespace FontStashSharp
 		private Bounds InternalShapedTextBounds(TextSource source, Vector2 position,
 			float characterSpacing, float lineSpacing, FontSystemEffect effect, int effectAmount)
 		{
-			// Get the text from source
 			var text = source.StringText.String ?? source.StringBuilderText?.ToString();
 			if (string.IsNullOrEmpty(text))
 			{
 				return Bounds.Empty;
 			}
 
-			// Split text into lines
 			var lines = text.Split('\n');
 
-			// Get metrics for line height
 			int ascent = 0, lineHeight = 0;
 			if (FontSystem.FontSources.Count > 0)
 			{
@@ -442,7 +432,6 @@ namespace FontStashSharp
 					continue;
 				}
 
-				// Shape the line at scaled fontSize to match glyph metrics
 				var shapedText = GetShapedText(line, FontSize * FontSystem.FontResolutionFactor);
 
 				float lineStartX = x;
@@ -450,18 +439,15 @@ namespace FontStashSharp
 				{
 					var shapedGlyph = shapedText.Glyphs[i];
 
-					// Add character spacing between glyphs
 					if (i > 0 && characterSpacing > 0)
 					{
 						x += characterSpacing;
 					}
 
-					// Get the glyph (without rendering to atlas)
 					var glyph = GetGlyphByGlyphId(null, shapedGlyph.GlyphId, shapedGlyph.FontSourceIndex, effect, effectAmount);
 
 					if (glyph != null)
 					{
-						// Calculate glyph bounds with HarfBuzz positioning
 						var glyphX = x + glyph.RenderOffset.X + (shapedGlyph.XOffset / 64.0f);
 						var glyphY = y + glyph.RenderOffset.Y + (shapedGlyph.YOffset / 64.0f);
 						var glyphX2 = glyphX + glyph.Size.X;
@@ -473,8 +459,6 @@ namespace FontStashSharp
 						if (glyphY2 > maxy) maxy = glyphY2;
 					}
 
-					// Use glyph advance from font metrics instead of HarfBuzz advance
-					// We use the font's native metrics but keep HarfBuzz's positioning/shaping for complex scripts
 					if (glyph != null)
 					{
 						x += glyph.XAdvance;
@@ -482,13 +466,12 @@ namespace FontStashSharp
 					}
 					else
 					{
-						// Fallback to HarfBuzz advance if glyph is null
+						// Fallback
 						x += (shapedGlyph.XAdvance / 64.0f);
 						y += (shapedGlyph.YAdvance / 64.0f);
 					}
 				}
 
-				// Update maxx with final x position
 				if (x > maxx) maxx = x;
 			}
 
@@ -549,24 +532,19 @@ namespace FontStashSharp
 			}
 
 			var cacheKey = new ShapedTextCacheKey(text, fontSize);
-
-			// Try to get from cache
 			if (_shapedTextCache.TryGet(cacheKey, out var cachedResult))
 			{
 				return cachedResult;
 			}
 
-			// Not in cache, shape the text
 			var shapedText = FontSystem.ShapeText(text, fontSize);
-
-			// Add to cache
 			_shapedTextCache.Add(cacheKey, shapedText);
 
 			return shapedText;
 		}
 
 		/// <summary>
-		/// Clear the shaped text cache (call when fonts are added/removed)
+		/// Clear the shaped text cache
 		/// </summary>
 		internal void ClearShapedTextCache()
 		{

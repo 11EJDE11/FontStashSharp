@@ -30,7 +30,6 @@ namespace FontStashSharp
 
 		private FontAtlas _currentAtlas;
 
-		// HarfBuzz support
 		private readonly List<HarfBuzzFont> _harfBuzzFonts = new List<HarfBuzzFont>();
 
 		public int TextureWidth => _settings.TextureWidth;
@@ -112,7 +111,6 @@ namespace FontStashSharp
 				Atlases.Clear();
 			}
 
-			// Dispose HarfBuzz fonts
 			if (_harfBuzzFonts != null)
 			{
 				foreach (var hbFont in _harfBuzzFonts)
@@ -139,11 +137,9 @@ namespace FontStashSharp
 				}
 				catch
 				{
-					// If HarfBuzz font creation fails, add null placeholder
 					_harfBuzzFonts.Add(null);
 				}
 
-				// Clear shaped text cache in all existing fonts since font sources changed
 				foreach (var kvp in _fonts)
 				{
 					kvp.Value.ClearShapedTextCache();
