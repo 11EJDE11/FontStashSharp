@@ -35,7 +35,7 @@ namespace FontStashSharp.HarfBuzz
 			List<DirectionalRun> directionalRuns;
 			if (fontSystem.EnableBiDi)
 			{
-				directionalRuns = BiDiAnalyzer.AnalyzeAndReorder(text);
+				directionalRuns = BiDiAnalyzer.SegmentIntoDirectionalRuns(text);
 			}
 			else
 			{
