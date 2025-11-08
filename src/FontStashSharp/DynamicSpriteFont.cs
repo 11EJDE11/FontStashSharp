@@ -26,7 +26,6 @@ namespace FontStashSharp
 
 		private readonly Int32Map<GlyphStorage> _storages = new Int32Map<GlyphStorage>();
 		private GlyphStorage _lastStorage;
-		private readonly Int32Map<int> Kernings = new Int32Map<int>();
 		private FontMetrics[] IndexedMetrics;
 
 		public FontSystem FontSystem { get; private set; }
@@ -219,18 +218,12 @@ namespace FontStashSharp
 			source.Reset();
 		}
 
-		private static int GetKerningsKey(int glyph1, int glyph2)
-		{
-			return ((glyph1 << 16) | (glyph1 >> 16)) ^ glyph2;
-		}
-
 		internal override float GetKerning(FontGlyph glyph, FontGlyph prevGlyph)
 		{
 			if (!FontSystem.UseKernings)
 			{
 				return 0.0f;
 			}
-
 
 			var dynamicGlyph = (DynamicFontGlyph)glyph;
 			var dynamicPrevGlyph = (DynamicFontGlyph)prevGlyph;
@@ -239,14 +232,13 @@ namespace FontStashSharp
 				return 0.0f;
 			}
 
-			var key = GetKerningsKey(prevGlyph.Id, dynamicGlyph.Id);
 			var result = 0;
-			if (!Kernings.TryGetValue(key, out result))
+			if (!prevGlyph.Kernings.TryGetValue(glyph.Id, out result))
 			{
 				var fontSource = FontSystem.FontSources[dynamicGlyph.FontSourceIndex];
 				result = fontSource.GetGlyphKernAdvance(prevGlyph.Id, dynamicGlyph.Id, dynamicGlyph.FontSize);
 
-				Kernings[key] = result;
+				prevGlyph.Kernings[glyph.Id] = result;
 			}
 
 			return result;

@@ -63,6 +63,8 @@ namespace FontStashSharp.Samples
 		/// </summary>
 		protected override void LoadContent()
 		{
+			// FontSystemDefaults.UseKernings = false;
+
 			// Create a new SpriteBatch, which can be used to draw textures.
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -78,6 +80,8 @@ namespace FontStashSharp.Samples
 					return new MemoryStream(bytes);
 				},
 				GraphicsDevice);
+
+			// _fssStaticFont.UseKernings = false;
 
 			// Simple
 			var fontSystem = new FontSystem();

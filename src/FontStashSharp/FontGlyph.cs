@@ -1,6 +1,7 @@
 ﻿#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 #elif STRIDE
 using Stride.Core.Mathematics;
 using Texture2D = Stride.Graphics.Texture;
@@ -13,6 +14,8 @@ namespace FontStashSharp
 {
 	public class FontGlyph
 	{
+		private Int32Map<int> _kernings;
+
 		public int Codepoint;
 		public int Id;
 		public int XAdvance;
@@ -20,6 +23,19 @@ namespace FontStashSharp
 		public Point RenderOffset;
 		public Point TextureOffset;
 		public Point Size;
+
+		public Int32Map<int> Kernings
+		{
+			get
+			{
+				if (_kernings == null)
+				{
+					_kernings = new Int32Map<int>();
+				}
+
+				return _kernings;
+			}
+		}
 
 		public bool IsEmpty
 		{
