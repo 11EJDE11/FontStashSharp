@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using FontStashSharp.Rasterizers.FreeType;
-using FontStashSharp.Rasterizers.SixLabors.Fonts;
 using System.Collections.Generic;
 using FontStashSharp.Interfaces;
 using System.Reflection;
@@ -64,8 +63,6 @@ namespace FontStashSharp.Samples
 			{
 				AddFontSystem("FreeType", new FreeTypeLoader());
 			}
-
-			AddFontSystem("SixLabors.Fonts", new SixLaborsFontLoader());
 		}
 
 		protected override void Draw(GameTime gameTime)
