@@ -78,7 +78,7 @@ It would render following:
 
 ## Colored Text
 
-If you want to draw a colored text, then pass array of colors(a color for every rendered character). I.e.
+If you want to draw colored text, pass an array of colors (one color for every rendered character). For example:
 ```c#
 	private static readonly Color[] ColoredTextColors = new Color[]
 	{
@@ -122,7 +122,7 @@ It would render following:
 
 ## Blurry and Stroked Text
 
-If you want to draw blurry text, pass the corresponding parameter to the method DrawText. I.e.
+If you want to draw blurry text, pass the corresponding parameter to the DrawText method. For example:
 ```c#
 _spriteBatch.DrawString(_font,
 	"The quick いろは brown\nfox にほへ jumps over\nt🙌h📦e l👏a👏zy dog",

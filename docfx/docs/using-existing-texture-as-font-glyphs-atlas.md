@@ -1,8 +1,8 @@
 Sometimes it makes sense to use existing texture as font glyphs atlas.
 
-I.e. if you make a GUI library that uses FontStashSharp, then it makes sense to pass existing texture that holds GUI images to the `FontSystem`. Such approach is good for performance as it will minimize amount of texture swaps, since both GUI images and glyphs will be stored on a single texture.
+For example, if you make a GUI library that uses FontStashSharp, it makes sense to pass an existing texture that holds GUI images to the `FontSystem`. This approach is good for performance because it minimizes the amount of texture swaps, since both GUI images and glyphs will be stored on a single texture.
 
-That could be archieved by following code:
+This can be achieved using the following code:
 ```c#
   var settings = new FontSystemSettings
   {

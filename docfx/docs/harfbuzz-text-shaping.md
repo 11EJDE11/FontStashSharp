@@ -17,7 +17,7 @@ If you want to enable HarfBuzz text shaping for all the text rendering, add foll
 ```c#
 FontSystemDefaults.TextShaper = new HarfBuzzTextShaper();
 ```
-It's important to note, that doing that isn't recommended. Since the shaped rendering is slower than ordinary. So it's better to do shaped rendering only for the languages that require it.
+It is important to note that this is not recommended, since shaped rendering is slower than ordinary rendering. Therefore, it is better to use shaped rendering only for languages that require it.
 
 Following samples demonstrate the feature:
 

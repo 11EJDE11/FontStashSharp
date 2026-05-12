@@ -1,4 +1,4 @@
-The glyph rendering is process that takes 8-bit output from the font rasterizer and converts it to 32-bit RGBA glyph image.
+Glyph rendering is the process that takes 8-bit output from the font rasterizer and converts it to a 32-bit RGBA glyph image.
 It is possible to control the glyph rendering using following FontSystemSettings properties:
 * FontSystemSettings.GlyphRenderResult
 * FontSystemSettings.GlyphRenderer
@@ -28,19 +28,19 @@ This is enum that has following values:
   }
 ```
 
-I.e. following code would create FontSystem with disabled antialiasing(which is required for some pixel perfect fonts):
+For example, the following code creates a FontSystem with disabled antialiasing (which is required for some pixel-perfect fonts):
 ```c#
-  FontSystemSettings settings = new settings();
+  FontSystemSettings settings = new FontSystemSettings();
   settings.GlyphRenderResult = GlyphRenderResult.NoAntialiasing;
   FontSystem fontSystem = new FontSystem(settings);
 ```
 
-The difference between default glyph rendering and disabled antialiasing is demonstrated on this image.
-Top line is default glyph rendering, bottom is using above code:
+The difference between default glyph rendering and disabled antialiasing is demonstrated in the image below.
+The top line shows default glyph rendering, and the bottom line shows the result using the above code:
 
 ![alt text](~/images/glyph-rendering.png)
 
-That is screenshot from this sample: https://github.com/FontStashSharp/FontStashSharp/tree/main/samples/FontStashSharp.Samples.DisableAntialiasing
+That is a screenshot from this sample: https://github.com/FontStashSharp/FontStashSharp/tree/main/samples/FontStashSharp.Samples.DisableAntialiasing
 
 ### FontSystemSettings.GlyphRenderer
 This is delegate with following definition:

@@ -1,9 +1,9 @@
 # Adding Reference
-There's engine agnostic version of FontStashStash available at nuget:
+There is an engine-agnostic version of FontStashSharp available on NuGet:
 https://www.nuget.org/packages/FontStashSharp.PlatformAgnostic/
 
 # Usage
-In order to use FontStashSharp you need to provide an implementation for any of two interfaces: 
+In order to use FontStashSharp, you need to provide an implementation for one of the following two interfaces: 
 1. [IFontStashRenderer](https://github.com/rds1983/FontStashSharp/blob/main/src/FontStashSharp/Interfaces/IFontStashRenderer.cs)
 2. [IFontStashRenderer2](https://github.com/rds1983/FontStashSharp/blob/main/src/FontStashSharp/Interfaces/IFontStashRenderer2.cs)
 

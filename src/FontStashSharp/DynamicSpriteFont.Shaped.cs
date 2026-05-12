@@ -148,7 +148,7 @@ namespace FontStashSharp
 		}
 
 		/// <summary>
-		/// Clear the shaped text cache
+		/// Clears the shaped text cache.
 		/// </summary>
 		internal void ClearShapedTextCache()
 		{
@@ -156,7 +156,7 @@ namespace FontStashSharp
 		}
 
 		/// <summary>
-		/// Get a glyph by its glyph ID
+		/// Gets a glyph by its glyph ID.
 		/// </summary>
 #if MONOGAME || FNA || XNA || STRIDE
 		internal DynamicFontGlyph GetGlyphById(GraphicsDevice device, int glyphId, int fontSourceIndex, FontSystemEffect effect, int effectAmount)

@@ -1,7 +1,7 @@
 ### Basic Usage
 FontStashSharp supports simple rich text functionality through special class RichTextLayout.
 
-The following code demonstrates it's basic usage with text that has one simple command '/n'(line break):
+The following code demonstrates its basic usage with text that has one simple command '/n' (line break):
 ```c#
 RichTextLayout rtl = new RichTextLayout
 {
@@ -9,7 +9,7 @@ RichTextLayout rtl = new RichTextLayout
   Text = "First line./nSecond line.",
 };
 ```
-Now it could be rendered using following code:
+Now it can be rendered using the following code:
 ```c#
 rtl.Draw(_spriteBatch, position, Color.White);
 ```
@@ -20,15 +20,15 @@ Which would result in this:
 Use property RichTextLayout.Size to find out the size in pixels of the rendered rich text.
 
 ### Commands
-Following chapter lists all supported commands. Later chapters would describe each in the detail.
+The following chapter lists all supported commands. Later chapters will describe each in detail.
 
 Name|Description|Examples
 ----|-----------|--------
 //|Symbol '/'|
 /c[_color_]|Changes the current color|/c[red] or /c[#ff123456]
 /cd|Changes the current color back to default(one that is passed to the RichTextLayout.Draw method)|
-/eb[_effectAmount]|Turns on the blurry text effect. If amount parameter is ommited, then effect amount is set to 1 by default.|/eb or /eb2 or /eb[2]
-/es[_effectAmount]|Turns on the stroked text effect. If amount parameter is ommited, then effect amount is set to 1 by default.|/es or /es2 or /es[2]
+/eb[_effectAmount]|Turns on the blurry text effect. If the amount parameter is omitted, the effect amount is set to 1 by default.|/eb or /eb2 or /eb[2]
+/es[_effectAmount]|Turns on the stroked text effect. If the amount parameter is omitted, the effect amount is set to 1 by default.|/es or /es2 or /es[2]
 /ed|Turns off the text effect|
 /f[_fontString_]|Changes the current font|/f[arialbd.ttf,32]
 /fd|Changes the current font to default(RichTextLayout.Font)|
@@ -42,23 +42,23 @@ Name|Description|Examples
 /vd|Sets the vertical offset to zero|
 
 ### Commands '/c' and '/cd'
-Command '/c[_color_]' changes the current color. The '_color_' could be either color name or its hex code(in RGB or RGBA format). In latter case, it should be preceded by symbol '#'. 
+Command '/c[_color_]' changes the current color. The '_color_' can be either a color name or its hex code (in RGB or RGBA format). In that case, it should be preceded by the '#' symbol. 
 
 Command '/cd' changes the color back to the default, one that is passed to the RichTextLayout.Draw method.
 
-I.e. if we pass the following text to RichTextLayout: 
+For example, if we pass the following text to RichTextLayout: 
 ```
 This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.
 ```
 
-It would render this(if the default color passed to RichTextLayout.Draw is white):
+It would render the following (if the default color passed to RichTextLayout.Draw is white):
 
 ![alt text](~/images/rich-text-2.png)
 
 ### Commands '/f' and '/fd'
-Command '/f[_fontString_]' changes the current font. The '_fontString_' argument should be parsed by the developer. That is archieved by implementing a handler function that accepts string argument and returns value of type SpriteFontBase. The function should be assigned to static property RichTextDefaults.FontResolver.
+Command '/f[_fontString_]' changes the current font. The '_fontString_' argument should be parsed by the developer. This is achieved by implementing a handler function that accepts a string argument and returns a value of type SpriteFontBase. The function should be assigned to the static property RichTextDefaults.FontResolver.
 
-I.e. following code implements the font resolver - that parses the font file name and size separated by the comma - and creates the font from "C:\Windows\Fonts":
+For example, the following code implements the font resolver—which parses the font file name and size separated by a comma—and creates the font from "C:\Windows\Fonts":
 ```c#
 RichTextDefaults.FontResolver = p =>
 {
@@ -140,7 +140,7 @@ It would render following:
 
 ![alt text](~/images/rich-text-5.png)
 
-Images take into account '/v' command, but ignore '/c' command. Hence if pass following text:
+Images take into account the '/v' command but ignore the '/c' command. Hence if we pass the following text:
 ```
 A small /c[red]tree: /v8/i[mangrove1.png]
 ```
@@ -152,7 +152,7 @@ It would render this:
 ### Word Wrapping
 If you set RichTextLayout.Width to some value, then the text would be word-wrapped accordingly.
 
-I.e. if we pass following text:
+For example, if we pass the following text:
 ```
 This is the first line. This is the second line. This is the third line.
 ```
@@ -164,7 +164,7 @@ Following would be rendered:
 ![alt text](~/images/rich-text-7.png)
 
 ### Auto Ellipsis
-The ellipsis could be added to the end of the text, if it doesnt fit the specified dimensions.
+The ellipsis can be added to the end of the text if it doesn't fit the specified dimensions.
 This feature is used when both RichTextLayout.Width and RichTextLayout.Height are set. And RichTextLayout.AutoEllipsisMethod is set to either Word or Character. Also RichTextLayout.AutoEllipsisString determines the string to use as the ellipsis.
 
 If in the above example we set Width to 250 and Height to 100. And AutoEllipsisMethod is set to Character, then the following would be rendered:
