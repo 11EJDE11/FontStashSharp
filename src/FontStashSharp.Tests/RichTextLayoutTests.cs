@@ -6,6 +6,9 @@ namespace FontStashSharp.Tests
 {
 	public class RichTextLayoutTests
 	{
+		/// <summary>
+		/// Tests basic rich text layout parsing with color codes, newlines, and effects to verify line count, chunks, and dimensions.
+		/// </summary>
 		[Theory]
 		[InlineData("First line./nSecond line.", 2, 1, 149, 64)]
 		[InlineData("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 844, 32)]
@@ -28,6 +31,9 @@ namespace FontStashSharp.Tests
 			Assert.Equal(new Point(width, height), richTextLayout.Size);
 		}
 
+		/// <summary>
+		/// Tests rich text layout with numeric parameters for vertical offset, strike effect, blur effect, and bold.
+		/// </summary>
 		[Fact]
 		public void NumericParametersTest()
 		{
@@ -62,6 +68,9 @@ namespace FontStashSharp.Tests
 			Assert.Equal(3, textChunk.EffectAmount);
 		}
 
+		/// <summary>
+		/// Tests text wrapping behavior when rich text layout width is constrained.
+		/// </summary>
 		[Fact]
 		public void WrappingTest()
 		{
@@ -79,6 +88,9 @@ namespace FontStashSharp.Tests
 			Assert.Equal(3, richTextLayout.Lines.Count);
 		}
 
+		/// <summary>
+		/// Tests that rich text layout with UTF-32 characters (emojis) can be measured without throwing exceptions.
+		/// </summary>
 		[Fact]
 		public void MeasureUtf32DoesNotThrow()
 		{
@@ -101,6 +113,9 @@ namespace FontStashSharp.Tests
 			Assert.True(size.Y >= 0);
 		}
 
+		/// <summary>
+		/// Tests automatic ellipsis insertion when text exceeds height constraints using character-based ellipsis method.
+		/// </summary>
 		[Fact]
 		public void EllipsisCharacter()
 		{
@@ -125,6 +140,9 @@ namespace FontStashSharp.Tests
 			Assert.Equal("second li...", textChunk.Text);
 		}
 
+		/// <summary>
+		/// Tests that Unicode emoji characters are correctly counted when calculating glyphs for rich text layout.
+		/// </summary>
 		[Fact]
 		public void UnicodeCharactersCount()
 		{

@@ -7,6 +7,9 @@ namespace FontStashSharp.Tests
 {
 	public class DynamicSpriteFontTests
 	{
+		/// <summary>
+		/// Tests that requesting a non-existent code point returns null and caches it properly.
+		/// </summary>
 		[Fact]
 		public void CacheNull()
 		{
@@ -31,6 +34,9 @@ namespace FontStashSharp.Tests
 			Assert.Null(glyph);
 		}
 
+		/// <summary>
+		/// Tests font rendering with an existing texture and verifies glyphs do not intersect with reserved space.
+		/// </summary>
 		[Fact]
 		public void ExistingTexture()
 		{
@@ -110,6 +116,9 @@ namespace FontStashSharp.Tests
 			}
 		}
 
+		/// <summary>
+		/// Tests text rendering with various font sizes, character spacing, and kerning settings to verify glyph positions.
+		/// </summary>
 		[Theory]
 		[InlineData("Tuesday", 45, 4, true, new int[] { 2, 9, 22, 17, 43, 18, 63, 17, 86, 10, 109, 17, 132, 18 })]
 		[InlineData("Tuesday", 45, 4, false, new int[] { 2, 9, 24, 17, 45, 18, 65, 17, 88, 10, 111, 17, 134, 18 })]

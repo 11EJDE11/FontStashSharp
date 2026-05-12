@@ -5,6 +5,9 @@ namespace FontStashSharp.Tests
 {
 	public class StaticSpriteFontTests
 	{
+		/// <summary>
+		/// Tests loading a static sprite font from BMFont data and verifies font properties and texture dimensions.
+		/// </summary>
 		[Fact]
 		public void Load()
 		{
