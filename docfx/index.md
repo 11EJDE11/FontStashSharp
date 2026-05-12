@@ -133,7 +133,7 @@ _spriteBatch.DrawString(_font,
 It would render following:
 ![alt text](~/images/getting-started-4.png)
 
-The stroke effect could be renderered similar way:
+The stroke effect can be rendered in a similar way:
 ```c#
 _spriteBatch.DrawString(_font,
 	"The quick いろは brown\nfox にほへ jumps over\nt🙌h📦e l👏a👏zy dog",

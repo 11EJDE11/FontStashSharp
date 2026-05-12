@@ -6,9 +6,13 @@ This animation demonstrates how a sample texture atlas is being updated during t
 
 If there is no more space on the texture atlas, a new one is created. `FontSystem` has a special event `CurrentAtlasFull` that is fired when that happens. 
 
-`FontSystem`'s texture atlases can be accessed through the extension method EnumerateTextures (works only for MonoGame/FNA/Stride):
-```
-  IEnumerable<Texture2D> textures = fontSystem.EnumerateTextures();
+`FontSystem`'s texture atlases can be accessed through the `Atlases` property:
+```c#
+foreach (var atlas in fontSystem.Atlases)
+{
+  Texture2D texture = atlas.Texture;
+  // Use the texture
+}
 ```
 
 Unfortunately, if a `FontSystem` has multiple textures, then the rendering performance would slightly go down, since it would need to swap between different textures.
