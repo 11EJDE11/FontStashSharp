@@ -15,6 +15,9 @@ using Color = FontStashSharp.FSColor;
 
 namespace FontStashSharp.RichText
 {
+	/// <summary>
+	/// Manages layout and rendering of richly-formatted text with support for fonts, colors, styles, and images.
+	/// </summary>
 	public class RichTextLayout
 	{
 		private SpriteFontBase _font;
@@ -26,6 +29,9 @@ namespace FontStashSharp.RichText
 		private readonly LayoutBuilder _layoutBuilder;
 		private readonly FSRenderContext _renderContext = new FSRenderContext();
 
+		/// <summary>
+		/// Gets or sets the default sprite font used for rendering.
+		/// </summary>
 		public SpriteFontBase Font
 		{
 			get
@@ -45,6 +51,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the rich text string to layout and render.
+		/// </summary>
 		public string Text
 		{
 			get
@@ -64,6 +73,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the vertical spacing between lines in pixels.
+		/// </summary>
 		public int VerticalSpacing
 		{
 			get
@@ -84,6 +96,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the maximum width for text layout, or null for unlimited width.
+		/// </summary>
 		public int? Width
 		{
 			get
@@ -103,6 +118,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the maximum height for text layout, or null for unlimited height.
+		/// </summary>
 		public int? Height
 		{
 			get
@@ -148,6 +166,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets the laid out text lines after updating the layout.
+		/// </summary>
 		public List<TextLine> Lines
 		{
 			get

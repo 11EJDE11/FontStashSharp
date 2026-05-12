@@ -16,10 +16,22 @@ using Texture2D = System.Object;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Specifies the visual effect to apply when rendering glyphs.
+	/// </summary>
 	public enum FontSystemEffect
 	{
+		/// <summary>
+		/// No effect applied to the glyph rendering.
+		/// </summary>
 		None,
+		/// <summary>
+		/// A blur effect is applied to soften the glyph edges.
+		/// </summary>
 		Blurry,
+		/// <summary>
+		/// A stroke/outline effect is applied to the glyph.
+		/// </summary>
 		Stroked
 	}
 
@@ -44,6 +56,9 @@ namespace FontStashSharp
 		NoAntialiasing
 	}
 
+	/// <summary>
+	/// Configuration settings for a FontSystem instance.
+	/// </summary>
 	public class FontSystemSettings
 	{
 		private int _textureWidth = 1024, _textureHeight = 1024;
@@ -51,6 +66,9 @@ namespace FontStashSharp
 		private int _kernelWidth = 0, _kernelHeight = 0;
 		private int _shapedTextCacheSize = 100;
 
+		/// <summary>
+		/// Gets or sets the width of the texture used to store glyph atlases.
+		/// </summary>
 		public int TextureWidth
 		{
 			get => _textureWidth;
@@ -67,6 +85,9 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the height of the texture used to store glyph atlases.
+		/// </summary>
 		public int TextureHeight
 		{
 			get => _textureHeight;
@@ -107,8 +128,15 @@ namespace FontStashSharp
 		}
 
 
+		/// <summary>
+		/// Gets or sets the custom glyph renderer to use for rendering glyphs.
+		/// </summary>
 		public GlyphRenderer GlyphRenderer { get; set; } = GlyphRenderers.Default;
 
+		/// <summary>
+		/// Gets or sets the font resolution factor for scaling glyphs.
+		/// A value greater than 1.0 renders glyphs at higher resolution for better quality.
+		/// </summary>
 		public float FontResolutionFactor
 		{
 			get => _fontResolutionFactor;
@@ -123,6 +151,9 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the kernel width for glyph effects (blur or stroke).
+		/// </summary>
 		public int KernelWidth
 		{
 			get => _kernelWidth;
@@ -138,6 +169,9 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the kernel height for glyph effects (blur or stroke).
+		/// </summary>
 		public int KernelHeight
 		{
 			get => _kernelHeight;
@@ -153,8 +187,14 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether to use the old StbTrueType rasterizer implementation.
+		/// </summary>
 		public bool StbTrueTypeUseOldRasterizer { get; set; }
 
+		/// <summary>
+		/// Gets or sets a value indicating whether to use EM to pixels scale conversion.
+		/// </summary>
 		public bool UseEmToPixelsScale { get; set; }
 
 		/// <summary>
@@ -164,21 +204,25 @@ namespace FontStashSharp
 		/// </summary>
 		public bool UseTextShaping => TextShaper != null;
 
+		/// <summary>
+		/// Gets or sets the text shaper for complex text layout (e.g., HarfBuzz).
+		/// </summary>
 		public ITextShaper TextShaper { get; set; }
 
 		/// <summary>
-		/// Use existing texture for storing glyphs
-		/// If this is set, then TextureWidth & TextureHeight are ignored
+		/// Gets or sets an existing texture for storing glyphs.
+		/// When set, TextureWidth and TextureHeight are ignored.
 		/// </summary>
 		public Texture2D ExistingTexture { get; set; }
 
 		/// <summary>
-		/// Defines rectangle of the used space in the ExistingTexture
+		/// Gets or sets the rectangle defining the used space in the ExistingTexture.
 		/// </summary>
 		public Rectangle ExistingTextureUsedSpace { get; set; }
 
 		/// <summary>
-		/// Font Rasterizer. If set to null then default rasterizer(StbTrueTypeSharp) is used.
+		/// Gets or sets the font loader for rasterizing fonts.
+		/// If null, the default rasterizer (StbTrueTypeSharp) is used.
 		/// </summary>
 		public IFontLoader FontLoader { get; set; }
 
@@ -201,6 +245,9 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the FontSystemSettings class with default values.
+		/// </summary>
 		public FontSystemSettings()
 		{
 			TextureWidth = FontSystemDefaults.TextureWidth;
@@ -216,6 +263,10 @@ namespace FontStashSharp
 			ShapedTextCacheSize = FontSystemDefaults.ShapedTextCacheSize;
 		}
 
+		/// <summary>
+		/// Creates a deep copy of these settings.
+		/// </summary>
+		/// <returns>A new FontSystemSettings instance with the same configuration.</returns>
 		public FontSystemSettings Clone()
 		{
 			return new FontSystemSettings

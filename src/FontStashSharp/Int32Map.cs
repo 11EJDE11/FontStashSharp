@@ -58,6 +58,10 @@ namespace FontStashSharp
 		}
 	}
 
+	/// <summary>
+	/// A generic dictionary optimized for integer keys.
+	/// </summary>
+	/// <typeparam name="TValue">The type of values stored in the map.</typeparam>
 	public class Int32Map<TValue> : IEnumerable<KeyValuePair<int, TValue>>
 	{
 		int[] _buckets;
@@ -67,8 +71,15 @@ namespace FontStashSharp
 		int _freeList;
 		int _freeCount;
 
+		/// <summary>
+		/// Initializes a new instance of the Int32Map class with the default capacity.
+		/// </summary>
 		public Int32Map() : this(0) { }
 
+		/// <summary>
+		/// Initializes a new instance of the Int32Map class with the specified initial capacity.
+		/// </summary>
+		/// <param name="capacity">The initial capacity of the map.</param>
 		public Int32Map(int capacity)
 		{
 			if (capacity < 0)
@@ -77,11 +88,20 @@ namespace FontStashSharp
 				Initialize(capacity);
 		}
 
+		/// <summary>
+		/// Gets the number of key-value pairs in the map.
+		/// </summary>
 		public int Count
 		{
 			get { return _count - _freeCount; }
 		}
 
+		/// <summary>
+		/// Gets or sets the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The integer key of the value to get or set.</param>
+		/// <returns>The value associated with the key.</returns>
+		/// <exception cref="KeyNotFoundException">Thrown when getting a key that does not exist.</exception>
 		public TValue this[int key]
 		{
 			get
@@ -112,11 +132,20 @@ namespace FontStashSharp
 			throw new NotImplementedException();
 		}
 
+		/// <summary>
+		/// Adds a key-value pair to the map.
+		/// </summary>
+		/// <param name="key">The integer key to add.</param>
+		/// <param name="value">The value to associate with the key.</param>
+		/// <exception cref="ArgumentException">Thrown when the key already exists.</exception>
 		public void Add(int key, TValue value)
 		{
 			Insert(key, value, true);
 		}
 
+		/// <summary>
+		/// Removes all key-value pairs from the map.
+		/// </summary>
 		public void Clear()
 		{
 			if (_count <= 0)
@@ -130,6 +159,11 @@ namespace FontStashSharp
 			_version = _version + 1;
 		}
 
+		/// <summary>
+		/// Determines whether the map contains the specified key.
+		/// </summary>
+		/// <param name="key">The key to search for.</param>
+		/// <returns>true if the key exists; otherwise, false.</returns>
 		public bool ContainsKey(int key)
 		{
 			return FindEntry(key) >= 0;
@@ -233,6 +267,11 @@ namespace FontStashSharp
 			_entries = entryArray;
 		}
 
+		/// <summary>
+		/// Removes the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key to remove.</param>
+		/// <returns>true if the key was found and removed; otherwise, false.</returns>
 		public bool Remove(int key)
 		{
 			unchecked
@@ -266,6 +305,12 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Attempts to get the value associated with the specified key.
+		/// </summary>
+		/// <param name="key">The key to search for.</param>
+		/// <param name="value">The value associated with the key, or the default value if not found.</param>
+		/// <returns>true if the key exists; otherwise, false.</returns>
 		public bool TryGetValue(int key, out TValue value)
 		{
 			unchecked
@@ -285,6 +330,10 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets an enumerator that iterates through the key-value pairs in the map.
+		/// </summary>
+		/// <returns>An enumerator for the map.</returns>
 		public Enumerator GetEnumerator()
 		{
 			return new Enumerator(this);
@@ -298,6 +347,9 @@ namespace FontStashSharp
 			public TValue Value;
 		}
 
+		/// <summary>
+		/// Enumerator for iterating through key-value pairs in an Int32Map.
+		/// </summary>
 		public struct Enumerator : IEnumerator<KeyValuePair<int, TValue>>
 		{
 			readonly Int32Map<TValue> _parent;
@@ -305,16 +357,26 @@ namespace FontStashSharp
 			int _index;
 			KeyValuePair<int, TValue> _current;
 
+			/// <summary>
+			/// Resets the enumerator to the beginning.
+			/// </summary>
+			/// <exception cref="NotImplementedException">This operation is not supported.</exception>
 			public void Reset()
 			{
 				throw new NotImplementedException();
 			}
 
+			/// <summary>
+			/// Gets the current key-value pair as an object.
+			/// </summary>
 			object IEnumerator.Current
 			{
 				get { return _current; }
 			}
 
+			/// <summary>
+			/// Gets the current key-value pair.
+			/// </summary>
 			public KeyValuePair<int, TValue> Current
 			{
 				get { return _current; }
@@ -328,6 +390,11 @@ namespace FontStashSharp
 				_current = new KeyValuePair<int, TValue>();
 			}
 
+			/// <summary>
+			/// Advances the enumerator to the next key-value pair.
+			/// </summary>
+			/// <returns>true if the enumerator advanced successfully; false if the end is reached.</returns>
+			/// <exception cref="InvalidOperationException">Thrown when the collection is modified during enumeration.</exception>
 			public bool MoveNext()
 			{
 				if (_version != _parent._version)
@@ -344,6 +411,9 @@ namespace FontStashSharp
 				return false;
 			}
 
+			/// <summary>
+			/// Releases resources used by the enumerator.
+			/// </summary>
 			public void Dispose() { }
 		}
 	}

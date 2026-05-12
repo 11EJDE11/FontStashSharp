@@ -20,22 +20,33 @@ using Texture2D = System.Object;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Base class for sprite-based fonts, providing text measurement, rendering, and glyph management.
+	/// </summary>
 	public abstract partial class SpriteFontBase
 	{
 		private static Texture2D _white;
 
 		/// <summary>
-		/// Font Size
+		/// Gets the font size in points.
 		/// </summary>
 		public float FontSize { get; private set; }
 
 		/// <summary>
-		/// Line Height in pixels
+		/// Gets the line height in pixels.
 		/// </summary>
 		public int LineHeight { get; private set; }
 
+		/// <summary>
+		/// Gets or sets the render font size multiplicator for scaling glyphs.
+		/// </summary>
 		protected float RenderFontSizeMultiplicator { get; set; } = 1f;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SpriteFontBase"/> class.
+		/// </summary>
+		/// <param name="fontSize">The font size in points.</param>
+		/// <param name="lineHeight">The line height in pixels.</param>
 		protected SpriteFontBase(float fontSize, int lineHeight)
 		{
 			FontSize = fontSize;
@@ -123,6 +134,17 @@ namespace FontStashSharp
 			return new Bounds(minx, miny, maxx, maxy);
 		}
 
+		/// <summary>
+		/// Gets the bounding box for text rendered with the specified parameters.
+		/// </summary>
+		/// <param name="text">The text to measure.</param>
+		/// <param name="position">The base position for measurement.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>The bounding box of the rendered text.</returns>
 		public Bounds TextBounds(string text, Vector2 position, Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
@@ -134,6 +156,17 @@ namespace FontStashSharp
 			return bounds;
 		}
 
+		/// <summary>
+		/// Gets the bounding box for text rendered with the specified parameters.
+		/// </summary>
+		/// <param name="text">The text to measure.</param>
+		/// <param name="position">The base position for measurement.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>The bounding box of the rendered text.</returns>
 		public Bounds TextBounds(StringBuilder text, Vector2 position, Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
@@ -220,6 +253,18 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Gets the glyphs for the specified text.
+		/// </summary>
+		/// <param name="text">The text to get glyphs for.</param>
+		/// <param name="position">The position for glyph layout.</param>
+		/// <param name="origin">The origin for transformation.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>A list of glyphs with their layout information.</returns>
 		public List<Glyph> GetGlyphs(string text, Vector2 position,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -232,6 +277,18 @@ namespace FontStashSharp
 			return result;
 		}
 
+		/// <summary>
+		/// Gets the glyphs for the specified text.
+		/// </summary>
+		/// <param name="text">The text to get glyphs for.</param>
+		/// <param name="position">The position for glyph layout.</param>
+		/// <param name="origin">The origin for transformation.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>A list of glyphs with their layout information.</returns>
 		public List<Glyph> GetGlyphs(StringBuilder text, Vector2 position,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -244,12 +301,36 @@ namespace FontStashSharp
 			return result;
 		}
 
+		/// <summary>
+		/// Gets the glyphs for the specified text, storing them in the provided list.
+		/// </summary>
+		/// <param name="text">The text to get glyphs for.</param>
+		/// <param name="position">The position for glyph layout.</param>
+		/// <param name="result">The list to store glyphs in.</param>
+		/// <param name="origin">The origin for transformation.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
 		public void GetGlyphs(string text, Vector2 position, List<Glyph> result,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
 			InternalGetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing, effect, effectAmount, result);
 
+		/// <summary>
+		/// Gets the glyphs for the specified text, storing them in the provided list.
+		/// </summary>
+		/// <param name="text">The text to get glyphs for.</param>
+		/// <param name="position">The position for glyph layout.</param>
+		/// <param name="result">The list to store glyphs in.</param>
+		/// <param name="origin">The origin for transformation.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
 		public void GetGlyphs(StringBuilder text, Vector2 position, List<Glyph> result,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -257,6 +338,16 @@ namespace FontStashSharp
 			InternalGetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing, effect, effectAmount, result);
 
 
+		/// <summary>
+		/// Measures the size of the specified text.
+		/// </summary>
+		/// <param name="text">The text to measure.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>The size of the text in pixels.</returns>
 		public Vector2 MeasureString(string text, Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
@@ -265,6 +356,16 @@ namespace FontStashSharp
 			return new Vector2(bounds.X2, bounds.Y2);
 		}
 
+		/// <summary>
+		/// Measures the size of the specified text.
+		/// </summary>
+		/// <param name="text">The text to measure.</param>
+		/// <param name="scale">The text scale. Null means (1, 1).</param>
+		/// <param name="characterSpacing">Additional spacing between characters.</param>
+		/// <param name="lineSpacing">Additional spacing between lines.</param>
+		/// <param name="effect">The glyph effect to apply.</param>
+		/// <param name="effectAmount">The effect amount in pixels.</param>
+		/// <returns>The size of the text in pixels.</returns>
 		public Vector2 MeasureString(StringBuilder text, Vector2? scale = null,
 			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
@@ -275,6 +376,11 @@ namespace FontStashSharp
 
 		internal abstract float GetKerning(FontGlyph glyph, FontGlyph prevGlyph);
 
+		/// <summary>
+		/// Gets or creates a 1x1 white texture for rendering.
+		/// </summary>
+		/// <param name="graphicsDevice">The graphics device (MonoGame/FNA/XNA/Stride) or texture manager.</param>
+		/// <returns>A 1x1 white texture.</returns>
 #if MONOGAME || FNA || XNA || STRIDE
 		public static Texture2D GetWhite(GraphicsDevice graphicsDevice)
 #else

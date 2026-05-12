@@ -19,8 +19,15 @@ using Texture2D = System.Object;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Manages font loading, rendering, and glyph atlas management for sprite-based font rendering.
+	/// This class handles dynamic glyph caching, text shaping, and texture atlas allocation.
+	/// </summary>
 	public class FontSystem : ITextShapingInfoProvider, IDisposable
 	{
+		/// <summary>
+		/// Padding in pixels around glyphs in the texture atlas.
+		/// </summary>
 		public const int GlyphPad = 2;
 
 		private readonly List<IFontSource> _fontSources = new List<IFontSource>();
@@ -31,37 +38,102 @@ namespace FontStashSharp
 
 		private readonly List<int> _textShaperFonts = new List<int>();
 
+		/// <summary>
+		/// Gets the width of texture atlases in pixels.
+		/// </summary>
 		public int TextureWidth => _settings.TextureWidth;
+
+		/// <summary>
+		/// Gets the height of texture atlases in pixels.
+		/// </summary>
 		public int TextureHeight => _settings.TextureHeight;
 
+		/// <summary>
+		/// Gets the glyph render result format.
+		/// </summary>
 		public GlyphRenderResult GlyphRenderResult => _settings.GlyphRenderResult;
 
+		/// <summary>
+		/// Gets a value indicating whether alpha premultiplication is enabled. Obsolete.
+		/// </summary>
 		[Obsolete]
 		public bool PremultiplyAlpha => _settings.PremultiplyAlpha;
+
+		/// <summary>
+		/// Gets the glyph renderer used for rendering glyphs to the atlas.
+		/// </summary>
 		public GlyphRenderer GlyphRenderer => _settings.GlyphRenderer;
 
+		/// <summary>
+		/// Gets the font resolution scaling factor.
+		/// </summary>
 		public float FontResolutionFactor => _settings.FontResolutionFactor;
 
+		/// <summary>
+		/// Gets the kernel width for glyph rendering.
+		/// </summary>
 		public int KernelWidth => _settings.KernelWidth;
+
+		/// <summary>
+		/// Gets the kernel height for glyph rendering.
+		/// </summary>
 		public int KernelHeight => _settings.KernelHeight;
 
+		/// <summary>
+		/// Gets the existing texture to use for the first atlas, if any.
+		/// </summary>
 		public Texture2D ExistingTexture => _settings.ExistingTexture;
+
+		/// <summary>
+		/// Gets the already-used rectangle in the existing texture, if any.
+		/// </summary>
 		public Rectangle ExistingTextureUsedSpace => _settings.ExistingTextureUsedSpace;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether kerning is applied when rendering text.
+		/// </summary>
 		public bool UseKernings { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the codepoint to render for missing glyphs, if any.
+		/// </summary>
 		public int? DefaultCharacter { get; set; } = ' ';
 
+		/// <summary>
+		/// Gets a value indicating whether text shaping (HarfBuzz) is enabled.
+		/// </summary>
 		public bool UseTextShaping => _settings.UseTextShaping;
+
+		/// <summary>
+		/// Gets the maximum size of the shaped text cache.
+		/// </summary>
 		public int ShapedTextCacheSize => _settings.ShapedTextCacheSize;
 
+		/// <summary>
+		/// Gets the list of font sources loaded in this system.
+		/// </summary>
 		internal List<IFontSource> FontSources => _fontSources;
 
+		/// <summary>
+		/// Gets the list of all texture atlases managed by this system.
+		/// </summary>
 		public List<FontAtlas> Atlases { get; } = new List<FontAtlas>();
+
+		/// <summary>
+		/// Gets the current active texture atlas.
+		/// </summary>
 		public FontAtlas CurrentAtlas => _currentAtlas;
 
+		/// <summary>
+		/// Raised when the current texture atlas is full and cannot accommodate more glyphs.
+		/// </summary>
 		public event EventHandler CurrentAtlasFull;
 		private readonly IFontLoader _fontLoader;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="FontSystem"/> class with the specified settings.
+		/// </summary>
+		/// <param name="settings">The font system settings. Cannot be null.</param>
 		public FontSystem(FontSystemSettings settings)
 		{
 			if (settings == null)
@@ -91,10 +163,16 @@ namespace FontStashSharp
 			DefaultCharacter = FontSystemDefaults.DefaultCharacter;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="FontSystem"/> class with default settings.
+		/// </summary>
 		public FontSystem() : this(new FontSystemSettings())
 		{
 		}
 
+		/// <summary>
+		/// Releases all resources used by the font system, including font sources and texture atlases.
+		/// </summary>
 		public void Dispose()
 		{
 			if (_fontSources != null)
@@ -127,6 +205,10 @@ namespace FontStashSharp
 			_fonts.Clear();
 		}
 
+		/// <summary>
+		/// Adds a font from a byte array.
+		/// </summary>
+		/// <param name="data">The font file data as a byte array.</param>
 		public void AddFont(byte[] data)
 		{
 			var fontSource = _fontLoader.Load(data);
@@ -144,11 +226,20 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// Adds a font from a stream.
+		/// </summary>
+		/// <param name="stream">The stream containing the font file data.</param>
 		public void AddFont(Stream stream)
 		{
 			AddFont(stream.ToByteArray());
 		}
 
+		/// <summary>
+		/// Gets or creates a dynamic sprite font with the specified size.
+		/// </summary>
+		/// <param name="fontSize">The font size in points.</param>
+		/// <returns>A <see cref="DynamicSpriteFont"/> for the specified size.</returns>
 		public DynamicSpriteFont GetFont(float fontSize)
 		{
 			var intSize = fontSize.FloatAsInt();
@@ -173,6 +264,10 @@ namespace FontStashSharp
 			return result;
 		}
 
+		/// <summary>
+		/// Sets the current active texture atlas.
+		/// </summary>
+		/// <param name="fontAtlas">The font atlas to set as active, or null to clear the current atlas.</param>
 		public void SetFontAtlas(FontAtlas fontAtlas)
 		{
 			if (fontAtlas != null && !Atlases.Contains(fontAtlas))
@@ -182,6 +277,9 @@ namespace FontStashSharp
 			_currentAtlas = fontAtlas;
 		}
 
+		/// <summary>
+		/// Clears all loaded fonts and texture atlases.
+		/// </summary>
 		public void Reset()
 		{
 			Atlases.Clear();

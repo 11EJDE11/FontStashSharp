@@ -21,11 +21,25 @@ using Color = FontStashSharp.FSColor;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Represents a texture with an offset for use in static sprite fonts.
+	/// </summary>
 	public class TextureWithOffset
 	{
+		/// <summary>
+		/// Gets or sets the texture.
+		/// </summary>
 		public Texture2D Texture { get; set; }
+
+		/// <summary>
+		/// Gets or sets the offset of the texture in pixels.
+		/// </summary>
 		public Point Offset { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TextureWithOffset"/> class.
+		/// </summary>
+		/// <param name="texture">The texture. Cannot be null.</param>
 		public TextureWithOffset(Texture2D texture)
 		{
 			if (texture == null)
@@ -36,22 +50,44 @@ namespace FontStashSharp
 			Texture = texture;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TextureWithOffset"/> class with a texture and offset.
+		/// </summary>
+		/// <param name="texture">The texture. Cannot be null.</param>
+		/// <param name="offset">The offset in pixels.</param>
 		public TextureWithOffset(Texture2D texture, Point offset) : this(texture)
 		{
 			Offset = offset;
 		}
 	}
 
+	/// <summary>
+	/// A sprite font with static, pre-rendered glyphs loaded from bitmap font files.
+	/// </summary>
 	public partial class StaticSpriteFont : SpriteFontBase
 	{
 		private readonly Int32Map<int> _kernings = new Int32Map<int>();
 
+		/// <summary>
+		/// Gets the glyphs in this font, indexed by codepoint.
+		/// </summary>
 		public Int32Map<FontGlyph> Glyphs { get; } = new Int32Map<FontGlyph>();
 
+		/// <summary>
+		/// Gets or sets the codepoint to render for missing glyphs, if any.
+		/// </summary>
 		public int? DefaultCharacter { get; set; }
 
+		/// <summary>
+		/// Gets or sets a value indicating whether kerning is applied when rendering text.
+		/// </summary>
 		public bool UseKernings { get; set; } = true;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="StaticSpriteFont"/> class.
+		/// </summary>
+		/// <param name="fontSize">The font size in pixels.</param>
+		/// <param name="lineHeight">The line height in pixels.</param>
 		public StaticSpriteFont(int fontSize, int lineHeight): base(fontSize, lineHeight)
 		{
 		}
@@ -89,6 +125,12 @@ namespace FontStashSharp
 			return ((codepoint1 << 16) | (codepoint1 >> 16)) ^ codepoint2;
 		}
 
+		/// <summary>
+		/// Gets the kerning advance value between two glyphs.
+		/// </summary>
+		/// <param name="codepoint1">The first character codepoint.</param>
+		/// <param name="codepoint2">The second character codepoint.</param>
+		/// <returns>The kerning advance value, or 0 if no kerning is defined.</returns>
 		public int GetGlyphKernAdvance(int codepoint1, int codepoint2)
 		{
 			var key = KerningKey(codepoint1, codepoint2);
@@ -98,6 +140,12 @@ namespace FontStashSharp
 			return result;
 		}
 
+		/// <summary>
+		/// Sets the kerning advance value between two glyphs.
+		/// </summary>
+		/// <param name="codepoint1">The first character codepoint.</param>
+		/// <param name="codepoint2">The second character codepoint.</param>
+		/// <param name="value">The kerning advance value in pixels.</param>
 		public void SetGlyphKernAdvance(int codepoint1, int codepoint2, int value)
 		{
 			var key = KerningKey(codepoint1, codepoint2);
@@ -171,12 +219,25 @@ namespace FontStashSharp
 			return result;
 		}
 
+		/// <summary>
+		/// Creates a static sprite font from bitmap font data.
+		/// </summary>
+		/// <param name="data">The bitmap font data (XML, text, or base64-encoded binary format).</param>
+		/// <param name="textureGetter">A function that provides textures for font pages.</param>
+		/// <returns>A <see cref="StaticSpriteFont"/> loaded from the bitmap font data.</returns>
 		public static StaticSpriteFont FromBMFont(string data, Func<string, TextureWithOffset> textureGetter)
 		{
 			var bmFont = LoadBMFont(data);
 			return FromBMFont(bmFont, textureGetter);
 		}
 
+		/// <summary>
+		/// Creates a static sprite font from bitmap font data with texture loading from streams.
+		/// </summary>
+		/// <param name="data">The bitmap font data (XML, text, or base64-encoded binary format).</param>
+		/// <param name="imageStreamOpener">A function that opens image streams for font pages.</param>
+		/// <param name="device">The graphics device (MonoGame/FNA/XNA/Stride) or texture manager.</param>
+		/// <returns>A <see cref="StaticSpriteFont"/> loaded from the bitmap font data.</returns>
 #if MONOGAME || FNA || XNA || STRIDE
 		public static StaticSpriteFont FromBMFont(string data, Func<string, Stream> imageStreamOpener, GraphicsDevice device)
 #else

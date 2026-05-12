@@ -16,21 +16,46 @@ using System.Drawing;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Manages a texture atlas for storing rendered glyphs using a skyline bin-packing algorithm.
+	/// </summary>
 	public class FontAtlas
 	{
 		byte[] _byteBuffer;
 		byte[] _colorBuffer;
 
+		/// <summary>
+		/// Gets the width of the atlas texture in pixels.
+		/// </summary>
 		public int Width { get; private set; }
 
+		/// <summary>
+		/// Gets the height of the atlas texture in pixels.
+		/// </summary>
 		public int Height { get; private set; }
 
+		/// <summary>
+		/// Gets the number of active nodes in the skyline.
+		/// </summary>
 		public int NodesNumber { get; private set; }
 
+		/// <summary>
+		/// Gets the array of skyline nodes.
+		/// </summary>
 		internal FontAtlasNode[] Nodes { get; private set; }
 
+		/// <summary>
+		/// Gets or sets the texture for this atlas.
+		/// </summary>
 		public Texture2D Texture { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="FontAtlas"/> class.
+		/// </summary>
+		/// <param name="w">The width of the atlas in pixels.</param>
+		/// <param name="h">The height of the atlas in pixels.</param>
+		/// <param name="count">The initial capacity of the skyline node array.</param>
+		/// <param name="texture">An optional existing texture to use for this atlas.</param>
 		public FontAtlas(int w, int h, int count, Texture2D texture)
 		{
 			Width = w;
@@ -43,6 +68,13 @@ namespace FontStashSharp
 			NodesNumber++;
 		}
 
+		/// <summary>
+		/// Inserts a node at the specified index in the skyline.
+		/// </summary>
+		/// <param name="idx">The index where the node will be inserted.</param>
+		/// <param name="x">The X coordinate of the node.</param>
+		/// <param name="y">The Y coordinate of the node.</param>
+		/// <param name="w">The width of the node.</param>
 		public void InsertNode(int idx, int x, int y, int w)
 		{
 			if (NodesNumber + 1 > Nodes.Length)
@@ -64,6 +96,10 @@ namespace FontStashSharp
 			NodesNumber++;
 		}
 
+		/// <summary>
+		/// Removes the node at the specified index from the skyline.
+		/// </summary>
+		/// <param name="idx">The index of the node to remove.</param>
 		public void RemoveNode(int idx)
 		{
 			if (NodesNumber == 0)
@@ -73,6 +109,11 @@ namespace FontStashSharp
 			NodesNumber--;
 		}
 
+		/// <summary>
+		/// Resets the atlas to the specified dimensions.
+		/// </summary>
+		/// <param name="w">The new width in pixels.</param>
+		/// <param name="h">The new height in pixels.</param>
 		public void Reset(int w, int h)
 		{
 			Width = w;
@@ -84,6 +125,15 @@ namespace FontStashSharp
 			NodesNumber++;
 		}
 
+		/// <summary>
+		/// Adds a skyline level to the atlas.
+		/// </summary>
+		/// <param name="idx">The index where the level will be inserted.</param>
+		/// <param name="x">The X coordinate of the level.</param>
+		/// <param name="y">The Y coordinate of the level.</param>
+		/// <param name="w">The width of the level.</param>
+		/// <param name="h">The height of the level.</param>
+		/// <returns>True if the level was added successfully.</returns>
 		public bool AddSkylineLevel(int idx, int x, int y, int w, int h)
 		{
 			InsertNode(idx, x, y + h, w);
@@ -119,6 +169,13 @@ namespace FontStashSharp
 			return true;
 		}
 
+		/// <summary>
+		/// Checks if a rectangle of the specified dimensions fits in the skyline.
+		/// </summary>
+		/// <param name="i">The starting node index.</param>
+		/// <param name="w">The width of the rectangle.</param>
+		/// <param name="h">The height of the rectangle.</param>
+		/// <returns>The Y coordinate if the rectangle fits, -1 otherwise.</returns>
 		public int RectFits(int i, int w, int h)
 		{
 			var x = Nodes[i].X;
@@ -140,6 +197,14 @@ namespace FontStashSharp
 			return y;
 		}
 
+		/// <summary>
+		/// Attempts to add a rectangle to the atlas.
+		/// </summary>
+		/// <param name="rw">The width of the rectangle.</param>
+		/// <param name="rh">The height of the rectangle.</param>
+		/// <param name="rx">The X coordinate of the placed rectangle (output).</param>
+		/// <param name="ry">The Y coordinate of the placed rectangle (output).</param>
+		/// <returns>True if the rectangle was placed successfully, false if the atlas is full.</returns>
 		public bool AddRect(int rw, int rh, ref int rx, ref int ry)
 		{
 			var besth = Height;
@@ -171,6 +236,16 @@ namespace FontStashSharp
 			return true;
 		}
 
+		/// <summary>
+		/// Renders a glyph and stores it in the atlas texture.
+		/// </summary>
+		/// <param name="graphicsDevice">The graphics device (MonoGame/FNA/XNA/Stride) or texture manager.</param>
+		/// <param name="glyph">The glyph to render.</param>
+		/// <param name="fontSource">The font source for rasterization.</param>
+		/// <param name="glyphRenderer">The glyph rendering function.</param>
+		/// <param name="glyphRenderResult">The glyph render result format.</param>
+		/// <param name="kernelWidth">The kernel width for rendering.</param>
+		/// <param name="kernelHeight">The kernel height for rendering.</param>
 #if MONOGAME || FNA || XNA || STRIDE
 		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, IFontSource fontSource, GlyphRenderer glyphRenderer, GlyphRenderResult glyphRenderResult, int kernelWidth, int kernelHeight)
 #else

@@ -16,10 +16,22 @@ using Color = FontStashSharp.FSColor;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// Options for rendering a glyph, including effects and output format.
+	/// </summary>
 	public struct GlyphRenderOptions
 	{
+		/// <summary>
+		/// The visual effect to apply when rendering the glyph.
+		/// </summary>
 		public FontSystemEffect Effect;
+		/// <summary>
+		/// The strength or intensity of the applied effect.
+		/// </summary>
 		public int EffectAmount;
+		/// <summary>
+		/// The width and height of the glyph in pixels.
+		/// </summary>
 		public Point Size;
 
 		/// <summary>
@@ -27,6 +39,9 @@ namespace FontStashSharp
 		/// </summary>
 		public GlyphRenderResult GlyphRenderResult;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether to use premultiplied alpha blending.
+		/// </summary>
 		[Obsolete("Use GlyphRenderResult instead")]
 		public bool PremultiplyAlpha
 		{
@@ -46,8 +61,17 @@ namespace FontStashSharp
 		}
 	}
 
+	/// <summary>
+	/// A delegate that renders a glyph from a source buffer to an output buffer with specified options.
+	/// </summary>
+	/// <param name="input">The source grayscale byte array representing the glyph.</param>
+	/// <param name="output">The destination RGBA byte array where the rendered glyph is written.</param>
+	/// <param name="options">The rendering options to apply.</param>
 	public delegate void GlyphRenderer(byte[] input, byte[] output, GlyphRenderOptions options);
 
+	/// <summary>
+	/// Provides built-in glyph rendering implementations.
+	/// </summary>
 	public static class GlyphRenderers
 	{
 		private static void Blur(byte[] dst, int w, int h, int dstStride, int blur)
@@ -144,6 +168,9 @@ namespace FontStashSharp
 			}
 		}
 
+		/// <summary>
+		/// The default glyph renderer that applies effects and converts to the specified output format.
+		/// </summary>
 		public static GlyphRenderer Default = (input, output, options) =>
 		{
 			var bufferSize = options.Size.X * options.Size.Y;

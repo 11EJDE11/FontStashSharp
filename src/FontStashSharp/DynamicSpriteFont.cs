@@ -14,6 +14,10 @@ using System.Numerics;
 
 namespace FontStashSharp
 {
+	/// <summary>
+	/// A sprite font that dynamically renders and caches glyphs on-demand into texture atlases.
+	/// Supports multiple font sources, glyph effects, and text shaping.
+	/// </summary>
 	public partial class DynamicSpriteFont : SpriteFontBase
 	{
 		private class GlyphStorage
@@ -29,8 +33,17 @@ namespace FontStashSharp
 		private readonly Int32Map<int> Kernings = new Int32Map<int>();
 		private FontMetrics[] IndexedMetrics;
 
+		/// <summary>
+		/// Gets the font system that manages this dynamic sprite font.
+		/// </summary>
 		public FontSystem FontSystem { get; private set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="DynamicSpriteFont"/> class.
+		/// </summary>
+		/// <param name="system">The font system managing this font. Cannot be null.</param>
+		/// <param name="size">The font size in points.</param>
+		/// <param name="lineHeight">The line height in pixels.</param>
 		internal DynamicSpriteFont(FontSystem system, float size, int lineHeight) : base(size, lineHeight)
 		{
 			if (system == null)
