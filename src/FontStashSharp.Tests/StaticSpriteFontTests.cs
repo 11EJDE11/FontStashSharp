@@ -1,12 +1,11 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System.Linq;
 
 namespace FontStashSharp.Tests
 {
-	[TestFixture]
 	public class StaticSpriteFontTests
 	{
-		[Test]
+		[Fact]
 		public void Load()
 		{
 			var assembly = TestsEnvironment.Assembly;
@@ -14,14 +13,14 @@ namespace FontStashSharp.Tests
 
 			var font = StaticSpriteFont.FromBMFont(data, fileName => assembly.OpenResourceStream("Resources." + fileName), TestsEnvironment.GraphicsDevice);
 
-			Assert.That(font.FontSize, Is.EqualTo(63));
-			Assert.That(font.Glyphs.Count, Is.EqualTo(191));
+			Assert.Equal(63, font.FontSize);
+			Assert.Equal(191, font.Glyphs.Count);
 
 			var texture = font.Glyphs.First().Value.Texture;
 
-			Assert.That(texture, Is.Not.Null);
-			Assert.That(texture.Width, Is.EqualTo(512));
-			Assert.That(texture.Height, Is.EqualTo(512));
+			Assert.NotNull(texture);
+			Assert.Equal(512, texture.Width);
+			Assert.Equal(512, texture.Height);
 		}
 	}
 }

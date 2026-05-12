@@ -1,15 +1,15 @@
 ﻿using FontStashSharp.RichText;
 using Microsoft.Xna.Framework;
-using NUnit.Framework;
+using Xunit;
 
 namespace FontStashSharp.Tests
 {
-	[TestFixture]
 	public class RichTextLayoutTests
 	{
-		[TestCase("First line./nSecond line.", 2, 1, 149, 64)]
-		[TestCase("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 844, 32)]
-		[TestCase("/esT/eb[2]e/edxt", 1, 3, 52, 32)]
+		[Theory]
+		[InlineData("First line./nSecond line.", 2, 1, 149, 64)]
+		[InlineData("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 844, 32)]
+		[InlineData("/esT/eb[2]e/edxt", 1, 3, 52, 32)]
 		public void BasicTests(string text, int linesCount, int chunksInFirstLineCount, int width, int height)
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -20,15 +20,15 @@ namespace FontStashSharp.Tests
 				Font = fontSystem.GetFont(32)
 			};
 
-			Assert.That(richTextLayout.Lines.Count, Is.EqualTo(linesCount));
+			Assert.Equal(linesCount, richTextLayout.Lines.Count);
 			if (linesCount > 0)
 			{
-				Assert.That(richTextLayout.Lines[0].Chunks.Count, Is.EqualTo(chunksInFirstLineCount));
+				Assert.Equal(chunksInFirstLineCount, richTextLayout.Lines[0].Chunks.Count);
 			}
-			Assert.That(new Point(width, height), Is.EqualTo(richTextLayout.Size));
+			Assert.Equal(new Point(width, height), richTextLayout.Size);
 		}
 
-		[Test]
+		[Fact]
 		public void NumericParametersTest()
 		{
 			const string text = "/v[-8]Test/v4Test/vd/es[2]Test/edTest/eb3Test";
@@ -42,27 +42,27 @@ namespace FontStashSharp.Tests
 				ShiftByTop = false
 			};
 
-			Assert.That(richTextLayout.Lines.Count, Is.EqualTo(1));
+			Assert.Single(richTextLayout.Lines);
 			var chunks = richTextLayout.Lines[0].Chunks;
-			Assert.That(chunks.Count, Is.EqualTo(5));
-			Assert.That(chunks[0].VerticalOffset, Is.EqualTo(-8));
-			Assert.That(chunks[1].VerticalOffset, Is.EqualTo(4));
+			Assert.Equal(5, chunks.Count);
+			Assert.Equal(-8, chunks[0].VerticalOffset);
+			Assert.Equal(4, chunks[1].VerticalOffset);
 
 			var textChunk = (TextChunk)chunks[2];
-			Assert.That(textChunk.VerticalOffset, Is.EqualTo(0));
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.Stroked));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(2));
+			Assert.Equal(0, textChunk.VerticalOffset);
+			Assert.Equal(FontSystemEffect.Stroked, textChunk.Effect);
+			Assert.Equal(2, textChunk.EffectAmount);
 
 			textChunk = (TextChunk)chunks[3];
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.None));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(0));
+			Assert.Equal(FontSystemEffect.None, textChunk.Effect);
+			Assert.Equal(0, textChunk.EffectAmount);
 
 			textChunk = (TextChunk)chunks[4];
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.Blurry));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(3));
+			Assert.Equal(FontSystemEffect.Blurry, textChunk.Effect);
+			Assert.Equal(3, textChunk.EffectAmount);
 		}
 
-		[Test]
+		[Fact]
 		public void WrappingTest()
 		{
 			const string text = "This is the first line. This is the second line. This is the third line.";
@@ -76,10 +76,10 @@ namespace FontStashSharp.Tests
 				Width = 300
 			};
 
-			Assert.That(richTextLayout.Lines.Count, Is.EqualTo(3));
+			Assert.Equal(3, richTextLayout.Lines.Count);
 		}
 
-		[Test]
+		[Fact]
 		public void MeasureUtf32DoesNotThrow()
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -91,16 +91,17 @@ namespace FontStashSharp.Tests
 			};
 
 			var size = Point.Zero;
-			Assert.DoesNotThrow(() =>
+			var ex = Record.Exception(() =>
 			{
 				size = richTextLayout.Size;
 			});
+			Assert.Null(ex);
 
-			Assert.That(size.X, Is.GreaterThanOrEqualTo(0));
-			Assert.That(size.Y, Is.GreaterThanOrEqualTo(0));
+			Assert.True(size.X >= 0);
+			Assert.True(size.Y >= 0);
 		}
 
-		[Test]
+		[Fact]
 		public void EllipsisCharacter()
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -117,14 +118,14 @@ namespace FontStashSharp.Tests
 
 			var lines = richTextLayout.Lines;
 
-			Assert.That(lines.Count, Is.EqualTo(2));
-			Assert.That(lines[1].Chunks.Count, Is.EqualTo(3));
-			Assert.That(lines[1].Chunks[2], Is.InstanceOf<TextChunk>());
+			Assert.Equal(2, lines.Count);
+			Assert.Equal(3, lines[1].Chunks.Count);
+			Assert.IsType<TextChunk>(lines[1].Chunks[2]);
 			var textChunk = (TextChunk)lines[1].Chunks[2];
-			Assert.That(textChunk.Text, Is.EqualTo("second li..."));
+			Assert.Equal("second li...", textChunk.Text);
 		}
 
-		[Test]
+		[Fact]
 		public void UnicodeCharactersCount()
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -138,12 +139,12 @@ namespace FontStashSharp.Tests
 
 			var lines = richTextLayout.Lines;
 
-			Assert.That(lines.Count, Is.EqualTo(1));
-			Assert.That(lines[0].Chunks.Count, Is.EqualTo(1));
-			Assert.That(lines[0].Chunks[0], Is.InstanceOf<TextChunk>());
+			Assert.Single(lines);
+			Assert.Single(lines[0].Chunks);
+			Assert.IsType<TextChunk>(lines[0].Chunks[0]);
 			var textChunk = (TextChunk)lines[0].Chunks[0];
-			Assert.That(textChunk.Glyphs.Count, Is.EqualTo(4));
-			Assert.That(textChunk.Count, Is.EqualTo(4));
+			Assert.Equal(4, textChunk.Glyphs.Count);
+			Assert.Equal(4, textChunk.Count);
 		}
 	}
 }

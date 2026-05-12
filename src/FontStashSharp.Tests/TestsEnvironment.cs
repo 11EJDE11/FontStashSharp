@@ -1,18 +1,17 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using NUnit.Framework;
+using System;
 using System.Reflection;
 
 namespace FontStashSharp.Tests
 {
-	[SetUpFixture]
 	public class TestsEnvironment
 	{
-		private static TestGame _game;
+		private static readonly Lazy<TestGame> _gameLazy = new Lazy<TestGame>(() => new TestGame());
 		private static FontSystem _defaultFontSystem;
 
 		public static Assembly Assembly => typeof(TestsEnvironment).Assembly;
 
-		public static GraphicsDevice GraphicsDevice => _game.GraphicsDevice;
+		public static GraphicsDevice GraphicsDevice => _gameLazy.Value.GraphicsDevice;
 
 		public static FontSystem DefaultFontSystem
 		{
@@ -26,12 +25,6 @@ namespace FontStashSharp.Tests
 
 				return _defaultFontSystem;
 			}
-		}
-
-		[OneTimeSetUp]
-		public void SetUp()
-		{
-			_game = new TestGame();
 		}
 
 		public static FontSystem CreateDefaultFontSystem(FontSystemSettings settings)

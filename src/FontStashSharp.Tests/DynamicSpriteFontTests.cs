@@ -1,14 +1,13 @@
 ﻿using FontStashSharp.Interfaces;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using NUnit.Framework;
+using Xunit;
 
 namespace FontStashSharp.Tests
 {
-	[TestFixture]
 	public class DynamicSpriteFontTests
 	{
-		[Test]
+		[Fact]
 		public void CacheNull()
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -21,18 +20,18 @@ namespace FontStashSharp.Tests
 			// Shouldn't exist
 			var glyphs = font.GetGlyphs(FontSystemEffect.None, 0);
 			DynamicFontGlyph glyph;
-			Assert.That(glyphs.TryGetValue(codePoint, out glyph), Is.False);
+			Assert.False(glyphs.TryGetValue(codePoint, out glyph));
 
 			glyph = (DynamicFontGlyph)font.GetGlyph(TestsEnvironment.GraphicsDevice, codePoint, FontSystemEffect.None, 0);
 
 			// Now it should exist
-			Assert.That(glyphs.TryGetValue(codePoint, out glyph), Is.True);
+			Assert.True(glyphs.TryGetValue(codePoint, out glyph));
 
 			// And should be equal to null too
-			Assert.That(glyph, Is.EqualTo(null));
+			Assert.Null(glyph);
 		}
 
-		[Test]
+		[Fact]
 		public void ExistingTexture()
 		{
 			Texture2D existingTexture;
@@ -62,13 +61,13 @@ namespace FontStashSharp.Tests
 					// Make sure glyph doesnt intersects with the used space
 					if (!atlasFull)
 					{
-						Assert.That(settings.ExistingTextureUsedSpace.Intersects(glyph.TextureRectangle), Is.False);
+						Assert.False(settings.ExistingTextureUsedSpace.Intersects(glyph.TextureRectangle));
 					}
 					else
 					{
 						// If we've moved to the next atlas
 						// The new glyph should override old existing texture used space
-						Assert.That(settings.ExistingTextureUsedSpace.Intersects(glyph.TextureRectangle), Is.True);
+						Assert.True(settings.ExistingTextureUsedSpace.Intersects(glyph.TextureRectangle));
 
 						// This concludes the testing
 						goto finish;
@@ -111,9 +110,10 @@ namespace FontStashSharp.Tests
 			}
 		}
 
-		[TestCase("Tuesday", 45, 4, true, new int[] { 2, 9, 22, 17, 43, 18, 63, 17, 86, 10, 109, 17, 132, 18 })]
-		[TestCase("Tuesday", 45, 4, false, new int[] { 2, 9, 24, 17, 45, 18, 65, 17, 88, 10, 111, 17, 134, 18 })]
-		[TestCase("Tuesday", 45.5f, 4, true, new int[] { 2, 10, 22, 18, 43, 19, 63, 18, 87, 11, 110, 18, 133, 19 })]
+		[Theory]
+		[InlineData("Tuesday", 45, 4, true, new int[] { 2, 9, 22, 17, 43, 18, 63, 17, 86, 10, 109, 17, 132, 18 })]
+		[InlineData("Tuesday", 45, 4, false, new int[] { 2, 9, 24, 17, 45, 18, 65, 17, 88, 10, 111, 17, 134, 18 })]
+		[InlineData("Tuesday", 45.5f, 4, true, new int[] { 2, 10, 22, 18, 43, 19, 63, 18, 87, 11, 110, 18, 133, 19 })]
 		public void DrawText(string text, float size, int characterSpacing, bool useKernings, int[] glyphPos)
 		{
 			var settings = new FontSystemSettings();
@@ -128,11 +128,11 @@ namespace FontStashSharp.Tests
 
 			font.DrawText(renderer, text, Vector2.Zero, Color.White, characterSpacing: characterSpacing);
 
-			Assert.That(glyphPos.Length, Is.EqualTo(renderer.Calls.Count * 2));
+			Assert.Equal(glyphPos.Length, renderer.Calls.Count * 2);
 			for (var i = 0; i < renderer.Calls.Count; i++)
 			{
-				Assert.That(glyphPos[i * 2], Is.EqualTo((int)renderer.Calls[i].Pos.X));
-				Assert.That(glyphPos[i * 2 + 1], Is.EqualTo((int)renderer.Calls[i].Pos.Y));
+				Assert.Equal(glyphPos[i * 2], (int)renderer.Calls[i].Pos.X);
+				Assert.Equal(glyphPos[i * 2 + 1], (int)renderer.Calls[i].Pos.Y);
 			}
 		}
 	}
