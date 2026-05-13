@@ -6,6 +6,7 @@
     <Description>FontStashSharp for XNA Framework 4.0</Description>
     <DefineConstants>$(DefineConstants);XNA</DefineConstants>
     <OutputPath>bin\XNA\$(Configuration)</OutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
