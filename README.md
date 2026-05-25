@@ -20,12 +20,14 @@ https://fontstashsharp.github.io/FontStashSharp
 1. Clone this repo.
 2. Open a solution from the "build" folder.
 
-## Sponsor
-https://www.patreon.com/rds1983
+## Sponsor 
+If this project is useful for you, you can support development:
+- Boosty: https://boosty.to/rds1983
+- Telegram Wallet: https://t.me/rds1983
 
-https://boosty.to/rds1983
-
-bitcoin: 3GeKFcv8X1cn8WqH1mr8i7jgPBkQjQuyN1
+### Crypto USDT (TON):
+`UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
+TON: `UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
 
 # Screenshots
 Ordinary Text:
