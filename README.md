@@ -27,11 +27,9 @@ If this project is useful for you, you can support development:
 
 ### Crypto
 
-USDT (TON):
-`UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
+USDT (TON): `UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
 
-TON:
-`UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
+TON: `UQCQy6tFInPvqinE44zHY4R0rYS3niaBikkqiSyGmyoAMwyO`
 
 # Screenshots
 Ordinary Text:
