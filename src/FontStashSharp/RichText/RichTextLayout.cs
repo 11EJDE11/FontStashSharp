@@ -178,6 +178,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets the size of the laid out text.
+		/// </summary>
 		public Point Size
 		{
 			get
@@ -187,6 +190,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to calculate glyph information during layout.
+		/// </summary>
 		public bool CalculateGlyphs
 		{
 			get
@@ -207,6 +213,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to support text formatting commands.
+		/// </summary>
 		public bool SupportsCommands
 		{
 			get
@@ -227,6 +236,9 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to shift text by the top of the font metrics.
+		/// </summary>
 		public bool ShiftByTop
 		{
 			get
@@ -247,8 +259,14 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets whether to ignore color commands in the text.
+		/// </summary>
 		public bool IgnoreColorCommand { get; set; } = false;
 
+		/// <summary>
+		/// Gets or sets the character used to prefix commands in the text.
+		/// </summary>
 		public char CommandPrefix
 		{
 			get => _layoutBuilder.CommandPrefix;
@@ -266,11 +284,18 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the RichTextLayout class with default settings.
+		/// </summary>
 		public RichTextLayout()
 		{
 			_layoutBuilder = new LayoutBuilder(new RichTextSettings());
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the RichTextLayout class with the specified settings.
+		/// </summary>
+		/// <param name="richTextSettings">The settings to use for text layout</param>
 		public RichTextLayout(RichTextSettings richTextSettings)
 		{
 			_layoutBuilder = new LayoutBuilder(richTextSettings);
@@ -296,6 +321,11 @@ namespace FontStashSharp.RichText
 			_dirty = false;
 		}
 
+		/// <summary>
+		/// Measures the size of the text with the specified width constraint.
+		/// </summary>
+		/// <param name="width">The maximum width for measurement, or null for unlimited width</param>
+		/// <returns>The size of the measured text</returns>
 		public Point Measure(int? width)
 		{
 			var result = Utility.PointZero;
@@ -312,6 +342,11 @@ namespace FontStashSharp.RichText
 			return result;
 		}
 
+		/// <summary>
+		/// Gets the text line at the specified cursor position.
+		/// </summary>
+		/// <param name="cursorPosition">The cursor position in the text</param>
+		/// <returns>The text line containing the cursor position</returns>
 		public TextLine GetLineByCursorPosition(int cursorPosition)
 		{
 			Update();
@@ -338,6 +373,11 @@ namespace FontStashSharp.RichText
 			return Lines[Lines.Count - 1];
 		}
 
+		/// <summary>
+		/// Gets the text line at the specified Y coordinate.
+		/// </summary>
+		/// <param name="y">The Y coordinate to search for</param>
+		/// <returns>The text line at the specified Y coordinate</returns>
 		public TextLine GetLineByY(int y)
 		{
 			if (string.IsNullOrEmpty(_text) || y < 0)
@@ -364,6 +404,11 @@ namespace FontStashSharp.RichText
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the glyph information at the specified character index.
+		/// </summary>
+		/// <param name="charIndex">The character index to get glyph information for</param>
+		/// <returns>The glyph information at the specified index</returns>
 		public TextChunkGlyph? GetGlyphInfoByIndex(int charIndex)
 		{
 			var strings = Lines;
@@ -422,6 +467,17 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Draws the text layout using the specified renderer.
+		/// </summary>
+		/// <param name="renderer">The font stash renderer to use</param>
+		/// <param name="position">The position to draw at</param>
+		/// <param name="color">The color to render the text in</param>
+		/// <param name="rotation">The rotation in radians</param>
+		/// <param name="origin">The center of rotation</param>
+		/// <param name="scale">The scale factors, or null for default (1, 1)</param>
+		/// <param name="layerDepth">The layer depth for drawing</param>
+		/// <param name="horizontalAlignment">The horizontal alignment of the text</param>
 		public void Draw(IFontStashRenderer renderer, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, TextHorizontalAlignment horizontalAlignment = TextHorizontalAlignment.Left)
@@ -430,6 +486,17 @@ namespace FontStashSharp.RichText
 			Draw(position, color, rotation, origin, scale, layerDepth, horizontalAlignment);
 		}
 
+		/// <summary>
+		/// Draws the text layout using the specified renderer.
+		/// </summary>
+		/// <param name="renderer">The font stash renderer to use</param>
+		/// <param name="position">The position to draw at</param>
+		/// <param name="color">The color to render the text in</param>
+		/// <param name="rotation">The rotation in radians</param>
+		/// <param name="origin">The center of rotation</param>
+		/// <param name="scale">The scale factors, or null for default (1, 1)</param>
+		/// <param name="layerDepth">The layer depth for drawing</param>
+		/// <param name="horizontalAlignment">The horizontal alignment of the text</param>
 		public void Draw(IFontStashRenderer2 renderer, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, TextHorizontalAlignment horizontalAlignment = TextHorizontalAlignment.Left)
@@ -440,8 +507,19 @@ namespace FontStashSharp.RichText
 
 #if MONOGAME || FNA || XNA || STRIDE
 
+		/// <summary>
+		/// Draws the text layout using the specified sprite batch.
+		/// </summary>
+		/// <param name="batch">The sprite batch to draw with</param>
+		/// <param name="position">The position to draw at</param>
+		/// <param name="color">The color to render the text in</param>
+		/// <param name="rotation">The rotation in radians</param>
+		/// <param name="origin">The center of rotation</param>
+		/// <param name="scale">The scale factors, or null for default (1, 1)</param>
+		/// <param name="layerDepth">The layer depth for drawing</param>
+		/// <param name="horizontalAlignment">The horizontal alignment of the text</param>
 		public void Draw(SpriteBatch batch, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, TextHorizontalAlignment horizontalAlignment = TextHorizontalAlignment.Left)
 		{
 			var renderer = SpriteBatchRenderer.Instance;

@@ -107,6 +107,11 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Gets the glyph information at the specified index.
+		/// </summary>
+		/// <param name="index">The index of the glyph to retrieve</param>
+		/// <returns>The glyph information at the specified index</returns>
 		public TextChunkGlyph? GetGlyphInfoByIndex(int index)
 		{
 			if (string.IsNullOrEmpty(Text) || index < 0 || index >= Text.Length)
@@ -117,6 +122,11 @@ namespace FontStashSharp.RichText
 			return Glyphs[index];
 		}
 
+		/// <summary>
+		/// Gets the glyph index at the specified X coordinate.
+		/// </summary>
+		/// <param name="x">The X coordinate to search for</param>
+		/// <returns>The glyph index at the specified X coordinate</returns>
 		public int? GetGlyphIndexByX(int x)
 		{
 			if (Glyphs.Count == 0 || x < 0)
@@ -150,6 +160,12 @@ namespace FontStashSharp.RichText
 			return i;
 		}
 
+		/// <summary>
+		/// Draws the text chunk using the specified rendering context.
+		/// </summary>
+		/// <param name="context">The rendering context to use</param>
+		/// <param name="position">The position to draw at</param>
+		/// <param name="color">The color to render the text in</param>
 		public override void Draw(FSRenderContext context, Vector2 position, Color color)
 		{
 			context.DrawText(Text, Font, position, color, Style, Effect, EffectAmount);

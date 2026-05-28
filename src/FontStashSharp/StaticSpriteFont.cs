@@ -88,7 +88,7 @@ namespace FontStashSharp
 		/// </summary>
 		/// <param name="fontSize">The font size in pixels.</param>
 		/// <param name="lineHeight">The line height in pixels.</param>
-		public StaticSpriteFont(int fontSize, int lineHeight): base(fontSize, lineHeight)
+		public StaticSpriteFont(int fontSize, int lineHeight) : base(fontSize, lineHeight)
 		{
 		}
 
@@ -101,8 +101,24 @@ namespace FontStashSharp
 		}
 
 #if MONOGAME || FNA || XNA || STRIDE
+		/// <summary>
+		/// Gets a glyph for the specified codepoint with optional effects applied.
+		/// </summary>
+		/// <param name="device">The graphics device</param>
+		/// <param name="codepoint">The Unicode codepoint for the character</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
+		/// <returns>The font glyph for the specified codepoint</returns>
 		protected internal override FontGlyph GetGlyph(GraphicsDevice device, int codepoint, FontSystemEffect effect, int effectAmount)
 #else
+		/// <summary>
+		/// Gets a glyph for the specified codepoint with optional effects applied.
+		/// </summary>
+		/// <param name="device">The texture manager</param>
+		/// <param name="codepoint">The Unicode codepoint for the character</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
+		/// <returns>The font glyph for the specified codepoint</returns>
 		protected internal override FontGlyph GetGlyph(ITexture2DManager device, int codepoint, FontSystemEffect effect, int effectAmount)
 #endif
 		{

@@ -28,6 +28,11 @@ namespace FontStashSharp
 		private static Texture2D _white;
 
 		/// <summary>
+		/// User-specified name of the font, which can be used for debugging or informational purposes.
+		/// </summary>
+		public string Name { get; set; }
+
+		/// <summary>
 		/// Gets the font size in points.
 		/// </summary>
 		public float FontSize { get; private set; }
@@ -54,13 +59,37 @@ namespace FontStashSharp
 		}
 
 #if MONOGAME || FNA || XNA || STRIDE
+		/// <summary>
+		/// Gets a glyph for the specified codepoint with optional effects applied.
+		/// </summary>
+		/// <param name="device">The graphics device</param>
+		/// <param name="codepoint">The Unicode codepoint for the character</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
+		/// <returns>The font glyph for the specified codepoint</returns>
 		protected internal abstract FontGlyph GetGlyph(GraphicsDevice device, int codepoint, FontSystemEffect effect, int effectAmount);
 #else
+		/// <summary>
+		/// Gets a glyph for the specified codepoint with optional effects applied.
+		/// </summary>
+		/// <param name="device">The texture manager</param>
+		/// <param name="codepoint">The Unicode codepoint for the character</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
+		/// <returns>The font glyph for the specified codepoint</returns>
 		protected internal abstract FontGlyph GetGlyph(ITexture2DManager device, int codepoint, FontSystemEffect effect, int effectAmount);
 #endif
 
 		internal abstract void PreDraw(TextSource str, FontSystemEffect effect, int effectAmount, out int ascent, out int lineHeight);
 
+		/// <summary>
+		/// Prepares the transformation matrix for text rendering.
+		/// </summary>
+		/// <param name="position">The drawing position</param>
+		/// <param name="rotation">The rotation in radians</param>
+		/// <param name="origin">The center of rotation</param>
+		/// <param name="scale">The scale factor</param>
+		/// <param name="transformation">The resulting transformation matrix</param>
 		protected void Prepare(Vector2 position, float rotation, Vector2 origin, ref Vector2 scale, out Matrix transformation)
 		{
 			scale /= RenderFontSizeMultiplicator;
@@ -373,6 +402,12 @@ namespace FontStashSharp
 			var bounds = TextBounds(text, Utility.Vector2Zero, scale, characterSpacing, lineSpacing, effect, effectAmount);
 			return new Vector2(bounds.X2, bounds.Y2);
 		}
+
+		/// <summary>
+		/// Returns the name of the font.
+		/// </summary>
+		/// <returns>The font name.</returns>
+		public override string ToString() => Name;
 
 		internal abstract float GetKerning(FontGlyph glyph, FontGlyph prevGlyph);
 

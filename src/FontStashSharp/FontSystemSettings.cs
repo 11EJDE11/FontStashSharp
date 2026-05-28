@@ -109,6 +109,9 @@ namespace FontStashSharp
 		/// </summary>
 		public GlyphRenderResult GlyphRenderResult { get; set; } = GlyphRenderResult.Premultiplied;
 
+		/// <summary>
+		/// Gets or sets whether alpha should be premultiplied.
+		/// </summary>
 		[Obsolete("Use GlyphRenderResult instead")]
 		public bool PremultiplyAlpha
 		{

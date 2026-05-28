@@ -18,6 +18,9 @@ using Color = FontStashSharp.FSColor;
 
 namespace FontStashSharp.RichText
 {
+	/// <summary>
+	/// Provides a rendering context for managing text and image rendering operations.
+	/// </summary>
 	public class FSRenderContext
 	{
 		private IFontStashRenderer _renderer;
@@ -27,6 +30,10 @@ namespace FontStashSharp.RichText
 		private float _rotation;
 		private float _layerDepth;
 
+		/// <summary>
+		/// Sets the renderer to use for drawing operations.
+		/// </summary>
+		/// <param name="renderer">The font stash renderer</param>
 		public void SetRenderer(IFontStashRenderer renderer)
 		{
 			if (renderer == null)
@@ -38,6 +45,10 @@ namespace FontStashSharp.RichText
 			_renderer2 = null;
 		}
 
+		/// <summary>
+		/// Sets the renderer to use for drawing operations.
+		/// </summary>
+		/// <param name="renderer">The font stash renderer</param>
 		public void SetRenderer(IFontStashRenderer2 renderer)
 		{
 			if (renderer == null)
@@ -48,6 +59,14 @@ namespace FontStashSharp.RichText
 			_renderer2 = renderer;
 		}
 
+		/// <summary>
+		/// Prepares the rendering context with transformation parameters.
+		/// </summary>
+		/// <param name="position">The drawing position</param>
+		/// <param name="rotation">The rotation in radians</param>
+		/// <param name="origin">The center of rotation</param>
+		/// <param name="scale">The scale factors</param>
+		/// <param name="layerDepth">The layer depth for drawing</param>
 		public void Prepare(Vector2 position, float rotation, Vector2 origin, Vector2 scale, float layerDepth)
 		{
 			_scale = scale;
@@ -56,7 +75,17 @@ namespace FontStashSharp.RichText
 			Utility.BuildTransform(position, _rotation, origin, _scale, out _transformation);
 		}
 
-		public void DrawText(string text, SpriteFontBase font, Vector2 pos, Color color, 
+		/// <summary>
+		/// Draws text using the current rendering context.
+		/// </summary>
+		/// <param name="text">The text to draw</param>
+		/// <param name="font">The font to use for rendering</param>
+		/// <param name="pos">The position to draw at</param>
+		/// <param name="color">The color to render the text in</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
+		public void DrawText(string text, SpriteFontBase font, Vector2 pos, Color color,
 			TextStyle textStyle, FontSystemEffect effect, int effectAmount)
 		{
 			if (string.IsNullOrEmpty(text))
@@ -67,7 +96,7 @@ namespace FontStashSharp.RichText
 			pos = pos.Transform(ref _transformation);
 			if (_renderer != null)
 			{
-				font.DrawText(_renderer, text, pos, color, _rotation, default(Vector2), _scale, _layerDepth, 
+				font.DrawText(_renderer, text, pos, color, _rotation, default(Vector2), _scale, _layerDepth,
 					textStyle: textStyle, effect: effect, effectAmount: effectAmount);
 			}
 			else
@@ -77,6 +106,14 @@ namespace FontStashSharp.RichText
 			}
 		}
 
+		/// <summary>
+		/// Draws an image using the current rendering context.
+		/// </summary>
+		/// <param name="texture">The texture to draw</param>
+		/// <param name="sourceRegion">The region of the texture to draw</param>
+		/// <param name="position">The position to draw at</param>
+		/// <param name="scale">The scale factors to apply</param>
+		/// <param name="color">The color to render the image with</param>
 		public void DrawImage(Texture2D texture, Rectangle sourceRegion, Vector2 position, Vector2 scale, Color color)
 		{
 			if (_renderer != null)

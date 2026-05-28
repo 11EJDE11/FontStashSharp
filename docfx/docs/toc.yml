@@ -2,6 +2,8 @@
   href: adding-reference-to-fna.md
 - name: Getting Started
   href: ../index.md
+- name: Samples
+  href: samples.md
 - name: Custom Render Interfaces
   href: custom-render-interfaces.md
 - name: Dealing With Texture Atlas Overflow

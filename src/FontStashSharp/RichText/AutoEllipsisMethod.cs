@@ -1,5 +1,8 @@
 namespace FontStashSharp.RichText
 {
+	/// <summary>
+	/// Specifies how text should be automatically truncated with an ellipsis.
+	/// </summary>
 	public enum AutoEllipsisMethod
 	{
 		/// <summary>

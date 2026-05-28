@@ -19,6 +19,21 @@ namespace FontStashSharp
 {
 	partial class SpriteFontBase
 	{
+		/// <summary>
+		/// Renders text styling effects such as underline or strikethrough using quad vertices.
+		/// </summary>
+		/// <param name="renderer">The font stash renderer</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="pos">The position of the text</param>
+		/// <param name="lineHeight">The height of a line</param>
+		/// <param name="ascent">The ascent of the font</param>
+		/// <param name="color">The color to render the style in</param>
+		/// <param name="transformation">The transformation matrix</param>
+		/// <param name="layerDepth">The layer depth</param>
+		/// <param name="topLeft">The top-left vertex of the quad</param>
+		/// <param name="topRight">The top-right vertex of the quad</param>
+		/// <param name="bottomLeft">The bottom-left vertex of the quad</param>
+		/// <param name="bottomRight">The bottom-right vertex of the quad</param>
 		protected void RenderStyle(IFontStashRenderer2 renderer, TextStyle textStyle, Vector2 pos,
 			int lineHeight, int ascent, Color color, ref Matrix transformation, float layerDepth,
 			ref VertexPositionColorTexture topLeft, ref VertexPositionColorTexture topRight,
@@ -169,6 +184,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, string text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -189,6 +207,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, string text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -209,6 +230,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringSegment text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -229,6 +253,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringSegment text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -249,6 +276,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringBuilder text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
@@ -269,6 +299,9 @@ namespace FontStashSharp
 		/// <param name="layerDepth">A depth of the layer of this string</param>
 		/// <param name="characterSpacing">A character spacing</param>
 		/// <param name="lineSpacing">A line spacing</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(IFontStashRenderer2 renderer, StringBuilder text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,

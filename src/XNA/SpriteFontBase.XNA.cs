@@ -23,8 +23,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, StringSegment text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
@@ -44,8 +49,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, StringSegment text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
@@ -66,8 +76,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, string text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
@@ -87,8 +102,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, string text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
@@ -109,8 +129,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, StringBuilder text, Vector2 position, Color color,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
@@ -131,8 +156,13 @@ namespace FontStashSharp
 		/// <param name="origin">Center of the rotation</param>
 		/// <param name="scale">A scaling of this text. Null means the scaling is (1, 1)</param>
 		/// <param name="layerDepth">A depth of the layer of this string</param>
+		/// <param name="characterSpacing">Additional spacing between characters</param>
+		/// <param name="lineSpacing">Additional spacing between lines</param>
+		/// <param name="textStyle">The text style to apply</param>
+		/// <param name="effect">The font system effect to apply</param>
+		/// <param name="effectAmount">The amount of the effect to apply</param>
 		public float DrawText(SpriteBatch batch, StringBuilder text, Vector2 position, Color[] colors,
-			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
+			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
 			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
 		{
