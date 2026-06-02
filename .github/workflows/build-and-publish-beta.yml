@@ -42,5 +42,3 @@ jobs:
           src/XNA/bin/Stride/Release/
           src/XNA/bin/Kni/Release/
           src/XNA/bin/XNA/Release/
-    - name: Install NuGet
-      uses: NuGet/setup-nuget@v1
