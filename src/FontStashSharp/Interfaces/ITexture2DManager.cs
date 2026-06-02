@@ -27,8 +27,9 @@ namespace FontStashSharp.Interfaces
 		/// <summary>
 		/// Sets RGBA data at the specified bounds
 		/// </summary>
-		/// <param name="bounds"></param>
-		/// <param name="data"></param>
+		/// <param name="texture">The texture to set data for.</param>
+		/// <param name="bounds">The bounds to set data in.</param>
+		/// <param name="data">The RGBA data.</param>
 		void SetTextureData(object texture, Rectangle bounds, byte[] data);
 	}
 }

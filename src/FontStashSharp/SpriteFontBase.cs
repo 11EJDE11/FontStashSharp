@@ -411,14 +411,19 @@ namespace FontStashSharp
 
 		internal abstract float GetKerning(FontGlyph glyph, FontGlyph prevGlyph);
 
+#if MONOGAME || FNA || XNA || STRIDE
 		/// <summary>
 		/// Gets or creates a 1x1 white texture for rendering.
 		/// </summary>
-		/// <param name="graphicsDevice">The graphics device (MonoGame/FNA/XNA/Stride) or texture manager.</param>
+		/// <param name="graphicsDevice">The graphics device.</param>
 		/// <returns>A 1x1 white texture.</returns>
-#if MONOGAME || FNA || XNA || STRIDE
 		public static Texture2D GetWhite(GraphicsDevice graphicsDevice)
 #else
+		/// <summary>
+		/// Gets or creates a 1x1 white texture for rendering.
+		/// </summary>
+		/// <param name="textureManager">The texture manager.</param>
+		/// <returns>A 1x1 white texture.</returns>
 		public static Texture2D GetWhite(ITexture2DManager textureManager)
 #endif
 		{

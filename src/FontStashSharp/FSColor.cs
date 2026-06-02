@@ -1765,6 +1765,12 @@ namespace FontStashSharp
 			return new FSColor((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
 		}
 
+		/// <summary>
+		/// Multiplies a scalar by a <see cref="FSColor"/>.
+		/// </summary>
+		/// <param name="scale">Multiplicator.</param>
+		/// <param name="value">Source <see cref="FSColor"/>.</param>
+		/// <returns>Multiplication result.</returns>
 		public static FSColor operator *(float scale, FSColor value)
 		{
 			return new FSColor((int)(value.R * scale), (int)(value.G * scale), (int)(value.B * scale), (int)(value.A * scale));

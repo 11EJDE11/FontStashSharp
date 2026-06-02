@@ -247,16 +247,23 @@ namespace FontStashSharp
 			return FromBMFont(bmFont, textureGetter);
 		}
 
+#if MONOGAME || FNA || XNA || STRIDE
 		/// <summary>
 		/// Creates a static sprite font from bitmap font data with texture loading from streams.
 		/// </summary>
 		/// <param name="data">The bitmap font data (XML, text, or base64-encoded binary format).</param>
 		/// <param name="imageStreamOpener">A function that opens image streams for font pages.</param>
-		/// <param name="device">The graphics device (MonoGame/FNA/XNA/Stride) or texture manager.</param>
+		/// <param name="device">The graphics device.</param>
 		/// <returns>A <see cref="StaticSpriteFont"/> loaded from the bitmap font data.</returns>
-#if MONOGAME || FNA || XNA || STRIDE
 		public static StaticSpriteFont FromBMFont(string data, Func<string, Stream> imageStreamOpener, GraphicsDevice device)
 #else
+		/// <summary>
+		/// Creates a static sprite font from bitmap font data with texture loading from streams.
+		/// </summary>
+		/// <param name="data">The bitmap font data (XML, text, or base64-encoded binary format).</param>
+		/// <param name="imageStreamOpener">A function that opens image streams for font pages.</param>
+		/// <param name="textureManager">The texture manager.</param>
+		/// <returns>A <see cref="StaticSpriteFont"/> loaded from the bitmap font data.</returns>
 		public static StaticSpriteFont FromBMFont(string data, Func<string, Stream> imageStreamOpener, ITexture2DManager textureManager)
 #endif
 		{
